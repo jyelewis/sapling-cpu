@@ -2,6 +2,7 @@
 # taken from: https://github.com/wuxx/icesugar/blob/master/src/common/io.pcf
 # alternate doc: https://github.com/hdl/constraints/blob/main/board/iCESugar-v1.5/constraints.pcf
 
+# runs at 12Mhz by default
 set_io ICESUGAR_CLK   35
 
 # note: inverted
