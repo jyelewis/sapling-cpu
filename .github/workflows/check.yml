@@ -43,3 +43,5 @@ jobs:
       - name: Test
         working-directory: 3_cpu_hdl
         run: make test
+        env:
+          LD_LIBRARY_PATH: ""
