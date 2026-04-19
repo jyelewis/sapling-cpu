@@ -9,21 +9,22 @@ module top
 
     output logic [7:0] ICESUGAR_PMOD2_LED
 );
-  // iCESugar clock is 12 MHz — divide to ~2 Hz (half a second per colour)
-  localparam int TickMax = 12_000_000 / 2;
+  logic clk;
 
-  logic   [$clog2(TickMax)-1:0] tick;
-  color_t                       color;
-  logic   [                7:0] tick_number;
+  // iCESugar clock is 12 MHz - divide down to get a 1hz clock
+  clock_divider #(
+      .DIVISOR(12_000_000)
+  ) clock_divider (
+      .clk_in (ICESUGAR_CLK),
+      .clk_out(clk)
+  );
 
-  always_ff @(posedge ICESUGAR_CLK) begin
-    if (tick == TickMax - 1) begin
-      tick <= '0;
-      color <= color_t'(color + 1);  // wraps 000 -> 111 -> 000
-      tick_number <= tick_number + 1;
-    end else begin
-      tick <= tick + 1;
-    end
+  color_t       color;
+  logic   [7:0] tick_number;
+
+  always_ff @(posedge clk) begin
+    color <= color_t'(color + 1);  // wraps 000 -> 111 -> 000
+    tick_number <= tick_number + 1;
   end
 
   IceSugar_HID_RGB_LED rgb_led (
