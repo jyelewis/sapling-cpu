@@ -1,30 +1,49 @@
-DEVICE_TOP_FILE = top_ice
-DEVICE_PCF = icesugar.pcf
-DEVICE_CHIP = up5k
-DEVICE_PACKAGE = sg48
+BOARD ?= icesugar
 
-SV_SRCS = $(DEVICE_TOP_FILE).sv
+# Pull in per-board config (CHIP, PACKAGE, PCF, FLASH_CMD)
+include boards/$(BOARD)/board.mk
+
+BOARD_SRCS = $(filter-out %_tb.sv, $(wildcard boards/$(BOARD)/*.sv))
+MODULE_SRCS = $(filter-out %_tb.sv, $(wildcard modules/*.sv))
+
+SV_SRCS = $(BOARD_SRCS) $(MODULE_SRCS)
 
 # ------------------------------------------
 
-all: $(DEVICE_TOP_FILE).bin
+BUILD = build/$(BOARD)
+PROJ  = $(BUILD)/top
+
+build: $(PROJ).bin
+
+flash: $(PROJ).bin
+	$(BOARD_FLASH_CMD) $
+
+files:
+	@echo $(SV_SRCS) | tr ' ' '\n'
+
+fmt:
+	verible-verilog-format --inplace $(SV_SRCS)
+
+lint:
+	verible-verilog-lint $(SV_SRCS)
 
 clean:
-	rm -f $(DEVICE_TOP_FILE).json $(DEVICE_TOP_FILE).asc $(DEVICE_TOP_FILE).bin
+	rm -rf build/
 
-flash: $(DEVICE_TOP_FILE).bin
-	icesprog -w $<
-
+check: fmt lint build
 # ------------------------------------------
 
-$(DEVICE_TOP_FILE).json: $(SV_SRCS)
-	yosys -p "synth_ice40 -top top -json $@" $(SV_SRCS)
-	
-$(DEVICE_TOP_FILE).asc: $(DEVICE_TOP_FILE).json $(DEVICE_PCF)
-	nextpnr-ice40 --$(DEVICE_CHIP) --package $(DEVICE_PACKAGE) --json $(DEVICE_TOP_FILE).json --pcf $(DEVICE_PCF) --asc $@
+$(BUILD):
+	mkdir -p $@
 
-$(DEVICE_TOP_FILE).bin: $(DEVICE_TOP_FILE).asc
+$(PROJ).json: $(SV_SRCS) | $(BUILD)
+	yosys -p "plugin -i slang; read_slang $(SV_SRCS); synth_ice40 -top top -json $@"
+
+$(PROJ).asc: $(PROJ).json $(BOARD_PCF)
+	nextpnr-ice40 --$(BOARD_CHIP) --package $(BOARD_PACKAGE) --json $< --pcf $(BOARD_PCF) --asc $@
+
+$(PROJ).bin: $(PROJ).asc
 	icepack $< $@
 
 
-.PHONY: all clean
+.PHONY: all flash files fmt lint clean

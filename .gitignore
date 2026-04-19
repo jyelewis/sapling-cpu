@@ -1,6 +1,4 @@
 node_modules/
 .idea/
 
-top_ice.asc
-top_ice.bin
-top_ice.json
+build/

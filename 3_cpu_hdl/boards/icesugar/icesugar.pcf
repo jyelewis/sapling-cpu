@@ -2,18 +2,17 @@
 # taken from: https://github.com/wuxx/icesugar/blob/master/src/common/io.pcf
 # alternate doc: https://github.com/hdl/constraints/blob/main/board/iCESugar-v1.5/constraints.pcf
 
+set_io ICESUGAR_CLK   35
 
 # note: inverted
 set_io ICESUGAR_LED_G          39
 set_io ICESUGAR_LED_R          40
 set_io ICESUGAR_LED_B          41
 
-set_io SW[0] 18
-set_io SW[1] 19
-set_io SW[2] 20
-set_io SW[3] 21
-
-set_io ICESUGAR_CLK   35
+set_io ICESUGAR_SWITCH[0] 18
+set_io ICESUGAR_SWITCH[1] 19
+set_io ICESUGAR_SWITCH[2] 20
+set_io ICESUGAR_SWITCH[3] 21
 
 set_io ICESUGAR_UART_RX    4
 set_io ICESUGAR_UART_TX    6
