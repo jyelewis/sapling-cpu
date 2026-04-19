@@ -30,7 +30,10 @@ lint:
 clean:
 	rm -rf build/
 
-check: fmt lint build
+test:
+	uv run pytest
+
+check: fmt lint build test
 # ------------------------------------------
 
 $(BUILD):
@@ -46,4 +49,4 @@ $(PROJ).bin: $(PROJ).asc
 	icepack $< $@
 
 
-.PHONY: all flash files fmt lint clean
+.PHONY: all flash files fmt lint clean test
