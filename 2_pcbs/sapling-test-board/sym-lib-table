@@ -1,0 +1,12 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "LED driver") (type "KiCad") (uri "${KIPRJMOD}/lib/TLC59281DBQR/TLC59281DBQR.kicad_sym") (options "") (descr ""))
+	(lib (name "Trim pot") (type "KiCad") (uri "${KIPRJMOD}/lib/3362P-1-103LF") (options "") (descr ""))
+	(lib (name "7-segment") (type "KiCad") (uri "${KIPRJMOD}/lib/SA56-11SURKWA") (options "") (descr ""))
+	(lib (name "Pin header") (type "KiCad") (uri "${KIPRJMOD}/lib/BCS-112-L-D-PE") (options "") (descr ""))
+	(lib (name "3.3v regulator") (type "KiCad") (uri "${KIPRJMOD}/lib/LM1117IMPX-3.3_NOPB") (options "") (descr ""))
+	(lib (name "USB-C plug") (type "KiCad") (uri "${KIPRJMOD}/lib/UJC-HP-3-SMT-TR") (options "") (descr ""))
+	(lib (name "100uf 10v Electrolytic cap") (type "KiCad") (uri "${KIPRJMOD}/lib/EDT107M010S9LAA") (options "") (descr ""))
+	(lib (name "Resettable fuse") (type "KiCad") (uri "${KIPRJMOD}/lib/MF-R300") (options "") (descr ""))
+	(lib (name "3-8 decoder") (type "KiCad") (uri "${KIPRJMOD}/lib/74HC138D") (options "") (descr ""))
+)

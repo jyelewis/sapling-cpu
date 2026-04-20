@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MF-R300
+D Bourns 3A Radial Leaded PCB Mount Resettable Fuse, 30 V
+K
+F https://www.bourns.com/docs/product-datasheets/mf-r.pdf
+$ENDCMP
+#
+#End Doc Library

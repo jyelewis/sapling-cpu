@@ -1,0 +1,31 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model SA56-11SURKWA
+#/321345/2036017/2.50/10/3/Display
+DEF SA56-11SURKWA DS 0 30 Y Y 1 F N
+F0 "DS" 1250 300 50 H V L CNN
+F1 "SA56-11SURKWA" 1250 200 50 H V L CNN
+F2 "DIPS1524W75P254L1270H825Q10N" 1250 100 50 H I L CNN
+F3 "https://www.digikey.com/en/products/detail/kingbright/SA56-11SURKWA/4098451?s=N4IgTCBcDaIMoEECsA2AtARg3AqgJQGkB1BEAXQF8g" 1250 0 50 H I L CNN
+F4 "Display Modules - LED Character and Numeric Red 7-Segment 1 Character Common Anode 1.95V 20mA 0.750\" H x 0.500\" W x 0.315\" D (19.05mm x 12.70mm x 8.00mm) 10-DIP (0.600\", 15.24mm)" 1250 -100 50 H I L CNN "Description"
+F5 "8.25" 1250 -200 50 H I L CNN "Height"
+F6 "604-SA56-11SURKWA" 1250 -300 50 H I L CNN "Mouser Part Number"
+F7 "https://www.mouser.co.uk/ProductDetail/Kingbright/SA56-11SURKWA?qs=FRBiz4Wv1YOv1zG3ZY5skg%3D%3D" 1250 -400 50 H I L CNN "Mouser Price/Stock"
+F8 "Kingbright" 1250 -500 50 H I L CNN "Manufacturer_Name"
+F9 "SA56-11SURKWA" 1250 -600 50 H I L CNN "Manufacturer_Part_Number"
+DRAW
+X K_E 1 0 0 200 R 50 50 0 0 P
+X K_D 2 0 -100 200 R 50 50 0 0 P
+X COM_A_1 3 0 -200 200 R 50 50 0 0 P
+X K_C 4 0 -300 200 R 50 50 0 0 P
+X K_DP 5 0 -400 200 R 50 50 0 0 P
+X K_G 10 1400 0 200 L 50 50 0 0 P
+X K_F 9 1400 -100 200 L 50 50 0 0 P
+X COM_A_2 8 1400 -200 200 L 50 50 0 0 P
+X K_A 7 1400 -300 200 L 50 50 0 0 P
+X K_B 6 1400 -400 200 L 50 50 0 0 P
+P 5 0 1 6 200 100 1200 100 1200 -500 200 -500 200 100 N
+ENDDRAW
+ENDDEF
+#
+#End Library

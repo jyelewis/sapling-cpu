@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TLC59281DBQR
+D TEXAS INSTRUMENTS - TLC59281DBQR - Led Driver, 16 Outputs, Constant Current, 3V-5.5V in,35mA out, SSOP-24
+K
+F https://www.ti.com/lit/ds/symlink/tlc59281.pdf?ts=1618088124089
+$ENDCMP
+#
+#End Doc Library
