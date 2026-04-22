@@ -3972,6 +3972,12 @@
 		)
 	)
 	(junction
+		(at 81.28 102.87)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2360084c-2d4f-41b2-b818-93ed23265ab7")
+	)
+	(junction
 		(at 168.91 50.8)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3988,6 +3994,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2a70d1f3-85be-4517-add7-7dccd0be8979")
+	)
+	(junction
+		(at 73.66 170.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3273a6f7-ec10-47df-9681-7f7cf4ae22a1")
 	)
 	(junction
 		(at 187.96 110.49)
@@ -4020,6 +4032,18 @@
 		(uuid "9ad7731a-fae1-40b4-ad3b-69f2ea760f60")
 	)
 	(junction
+		(at 156.21 102.87)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9fab4161-207f-4cf3-a583-574c2cf2aef4")
+	)
+	(junction
+		(at 27.94 172.72)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ba1e8c2e-1760-4356-95ce-0c037187a58a")
+	)
+	(junction
 		(at 73.66 172.72)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4030,6 +4054,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f16e2475-fd9e-4ec1-a32a-1d12cde1ebc9")
+	)
+	(junction
+		(at 27.94 175.26)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fba98bbc-22c8-4c44-b934-b153bb65e173")
 	)
 	(junction
 		(at 184.15 110.49)
@@ -4102,12 +4132,26 @@
 		(uuid "ebb2cad4-7d99-4d9e-90bf-bf86161c4bf2")
 	)
 	(no_connect
+		(at 92.71 107.95)
+		(uuid "ecc888c5-0afd-4560-9793-fcff836a8598")
+	)
+	(no_connect
 		(at 227.33 60.96)
 		(uuid "ed6ee512-4884-445a-b55a-b824d216c325")
 	)
 	(no_connect
 		(at 60.96 58.42)
 		(uuid "edae13a5-bf33-44d1-a57d-4e8d2d389ceb")
+	)
+	(wire
+		(pts
+			(xy 27.94 167.64) (xy 27.94 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "009acdab-6b9b-4bca-be7e-f1f105a8d7f6")
 	)
 	(wire
 		(pts
@@ -4141,6 +4185,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 128.27) (xy 81.28 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0dd483d9-38ed-4a59-8481-0a64fecabe98")
+	)
+	(wire
+		(pts
 			(xy 241.3 50.8) (xy 243.84 50.8)
 		)
 		(stroke
@@ -4148,6 +4202,16 @@
 			(type default)
 		)
 		(uuid "112bf499-1594-46fc-95de-cc4dc124c0e3")
+	)
+	(wire
+		(pts
+			(xy 27.94 175.26) (xy 27.94 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "14ebe40b-173e-49bc-9270-a3e43f88620a")
 	)
 	(wire
 		(pts
@@ -4198,6 +4262,16 @@
 			(type default)
 		)
 		(uuid "2210b3bb-b307-4939-9cd6-007ade684e17")
+	)
+	(wire
+		(pts
+			(xy 73.66 167.64) (xy 73.66 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27c5dec3-65e2-44ea-be87-efbb5cbf7980")
 	)
 	(wire
 		(pts
@@ -4271,6 +4345,16 @@
 	)
 	(wire
 		(pts
+			(xy 27.94 172.72) (xy 40.64 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5211fa30-9dbc-4adb-9bc3-f0b442cb6297")
+	)
+	(wire
+		(pts
 			(xy 165.1 58.42) (xy 165.1 102.87)
 		)
 		(stroke
@@ -4291,6 +4375,26 @@
 	)
 	(wire
 		(pts
+			(xy 156.21 88.9) (xy 156.21 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "59d124fe-bd7f-40b7-9ebe-69f94c37d50f")
+	)
+	(wire
+		(pts
+			(xy 27.94 172.72) (xy 27.94 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5dbc7fbc-37b4-4e9f-b055-2189a7a64985")
+	)
+	(wire
+		(pts
 			(xy 184.15 102.87) (xy 184.15 71.12)
 		)
 		(stroke
@@ -4298,6 +4402,16 @@
 			(type default)
 		)
 		(uuid "646ddf1f-86f8-4b5e-9438-f933e921455a")
+	)
+	(wire
+		(pts
+			(xy 81.28 102.87) (xy 81.28 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67017324-9f42-4e1f-84d9-e03df7893a13")
 	)
 	(wire
 		(pts
@@ -4341,6 +4455,16 @@
 	)
 	(wire
 		(pts
+			(xy 156.21 102.87) (xy 156.21 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7524d324-56f7-4fa6-9493-943729c0cb70")
+	)
+	(wire
+		(pts
 			(xy 60.96 73.66) (xy 64.77 73.66)
 		)
 		(stroke
@@ -4368,6 +4492,16 @@
 			(type default)
 		)
 		(uuid "798979e3-3944-4596-a9c6-b8d932f516ff")
+	)
+	(wire
+		(pts
+			(xy 81.28 102.87) (xy 92.71 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "79a54f88-a8dd-4413-9ae9-d3bc6fa0858a")
 	)
 	(wire
 		(pts
@@ -4408,6 +4542,16 @@
 			(type default)
 		)
 		(uuid "81dc1631-65a5-4790-b51d-66049769eb7e")
+	)
+	(wire
+		(pts
+			(xy 146.05 128.27) (xy 156.21 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "871d2d59-d5a9-4cfe-82a9-02dd37385775")
 	)
 	(wire
 		(pts
@@ -4541,6 +4685,16 @@
 	)
 	(wire
 		(pts
+			(xy 146.05 102.87) (xy 156.21 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b04d9462-a4f6-4b4a-ac70-1740c4dc4fd8")
+	)
+	(wire
+		(pts
 			(xy 21.59 170.18) (xy 40.64 170.18)
 		)
 		(stroke
@@ -4588,6 +4742,16 @@
 			(type default)
 		)
 		(uuid "c37a1dac-c69f-4ac7-adcd-cbf4422d436a")
+	)
+	(wire
+		(pts
+			(xy 92.71 128.27) (xy 81.28 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd110bb4-6bca-47b5-8d02-3b42aca98960")
 	)
 	(wire
 		(pts
@@ -4648,6 +4812,16 @@
 			(type default)
 		)
 		(uuid "f50e6ff5-d811-400b-b71d-386d07efabad")
+	)
+	(wire
+		(pts
+			(xy 81.28 133.35) (xy 92.71 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fa164337-1601-44d8-8c67-1ee2f1a083fa")
 	)
 	(label "led_driver_out_2"
 		(at 38.1 53.34 180)
@@ -5398,166 +5572,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 73.66 167.64 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "04773c7c-0798-4814-88b6-3f0332fc6cab")
-		(property "Reference" "#PWR029"
-			(at 80.01 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 77.47 167.6401 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 73.66 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 73.66 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 73.66 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f464b2f3-fd7a-4f8b-91f0-1940ceca526b")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR029")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 27.94 167.64 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "0beb3dcc-e33c-4e53-ba19-5565d3fb45d2")
-		(property "Reference" "#PWR032"
-			(at 21.59 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 24.13 167.6399 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 27.94 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 27.94 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 27.94 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "c13bd774-593d-4fc7-a023-d576b78ec768")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR032")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:LED")
 		(at 172.72 106.68 270)
 		(unit 1)
@@ -5903,85 +5917,6 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 146.05 102.87 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "18a48b2f-97a7-4ec6-98da-a97e32bf6f43")
-		(property "Reference" "#PWR010"
-			(at 142.24 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 149.86 102.8699 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 146.05 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 146.05 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 146.05 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "667d6871-f3c2-46cb-8a76-515e7c94a335")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR010")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
 		(at 53.34 123.19 0)
 		(unit 1)
 		(body_style 1)
@@ -6053,85 +5988,6 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "#PWR024")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 92.71 133.35 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "22b7ffb9-d16b-4f86-af7c-987a49eb389e")
-		(property "Reference" "#PWR013"
-			(at 86.36 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 88.9 133.3499 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 92.71 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 92.71 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 92.71 133.35 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3d9bb203-5203-4e05-af6c-68621292f119")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -6776,6 +6632,83 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "#PWR049")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 81.28 133.35 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3a1e8bb0-cc4e-4d50-804a-a3e73062717c")
+		(property "Reference" "TP6"
+			(at 77.978 128.27 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 77.978 130.81 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D4.0mm"
+			(at 81.28 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 81.28 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 81.28 133.35 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d9df7696-9e6b-46e5-aec7-b146092bbad8")
+		)
+		(instances
+			(project "sapling-test-board"
+				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
+					(reference "TP6")
 					(unit 1)
 				)
 			)
@@ -7996,85 +7929,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+5V")
-		(at 92.71 102.87 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5d5763dc-bb94-4f15-bc24-b986b03a1c64")
-		(property "Reference" "#PWR015"
-			(at 96.52 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "+5V"
-			(at 88.9 102.8699 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 92.71 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 92.71 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 92.71 102.87 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "12fa463e-2086-40d9-bf16-4cfa9f26d4f4")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR015")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 53.34 127 180)
 		(unit 1)
@@ -9065,7 +8919,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 92.71 128.27 90)
+		(at 81.28 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9076,7 +8930,7 @@
 		(fields_autoplaced yes)
 		(uuid "71bcbd85-e3b7-4f83-87c9-4104d13fa5ba")
 		(property "Reference" "#PWR043"
-			(at 96.52 128.27 0)
+			(at 81.28 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9087,7 +8941,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 88.9 128.2699 90)
+			(at 83.82 87.6299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9098,7 +8952,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 92.71 128.27 0)
+			(at 81.28 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9109,7 +8963,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 92.71 128.27 0)
+			(at 81.28 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9120,7 +8974,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 92.71 128.27 0)
+			(at 81.28 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9502,86 +9356,6 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "#PWR044")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 27.94 175.26 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7adebebb-844a-44a2-9870-4f05d40a3dea")
-		(property "Reference" "#PWR033"
-			(at 21.59 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 24.13 175.2599 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 27.94 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 27.94 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 27.94 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0a16ca73-578e-4ad6-a606-cc3cdf31408d")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR033")
 					(unit 1)
 				)
 			)
@@ -10734,7 +10508,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 146.05 128.27 270)
+		(at 156.21 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10743,9 +10517,9 @@
 		(in_pos_files yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "ba2524db-56da-465a-b6e7-a5eb789a4a23")
-		(property "Reference" "#PWR011"
-			(at 142.24 128.27 0)
+		(uuid "ba1c6259-46dc-4fee-901b-d50cf90f1add")
+		(property "Reference" "#PWR012"
+			(at 156.21 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10756,18 +10530,17 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 149.86 128.2699 90)
+			(at 156.21 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 146.05 128.27 0)
+			(at 156.21 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10778,7 +10551,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 146.05 128.27 0)
+			(at 156.21 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10789,7 +10562,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 146.05 128.27 0)
+			(at 156.21 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10800,12 +10573,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "306c1a7d-b055-4f33-a490-cb6f8a868e62")
+			(uuid "17cb50df-bc91-4016-a78b-8d7efaa108bb")
 		)
 		(instances
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR011")
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -11029,6 +10802,86 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "#PWR031")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 27.94 182.88 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c6becf79-19ed-4703-9f98-f4f149890ba7")
+		(property "Reference" "#PWR052"
+			(at 27.94 189.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 27.9399 186.69 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 27.94 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 27.94 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 27.94 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4a625e38-fb16-468f-a075-f8d33dd8f547")
+		)
+		(instances
+			(project "sapling-test-board"
+				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
+					(reference "#PWR052")
 					(unit 1)
 				)
 			)
@@ -11696,85 +11549,6 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "#PWR019")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 92.71 107.95 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e48ec45d-5cd6-4b17-aa57-77834e287f0b")
-		(property "Reference" "#PWR012"
-			(at 86.36 107.95 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 88.9 107.9499 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 92.71 107.95 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 92.71 107.95 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 92.71 107.95 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0fe9c0b4-bf3f-4c1a-9f57-3fc61983f312")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -12600,86 +12374,6 @@
 			(project "sapling-test-board"
 				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
 					(reference "C6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 40.64 172.72 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f7e45d86-658c-4569-a942-695b5b7822b1")
-		(property "Reference" "#PWR028"
-			(at 34.29 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 36.83 172.7199 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 40.64 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 40.64 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 40.64 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d26c3e86-39b6-45f0-b8cb-7d308e5c0329")
-		)
-		(instances
-			(project "sapling-test-board"
-				(path "/23cca931-09ef-413b-acf5-0e8178836c67"
-					(reference "#PWR028")
 					(unit 1)
 				)
 			)
