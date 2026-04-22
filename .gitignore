@@ -6,3 +6,4 @@ build/
 .history/
 *.lck
 
+.DS_Store
