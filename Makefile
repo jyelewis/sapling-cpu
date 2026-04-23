@@ -23,33 +23,36 @@ SV_SRCS     := $(BOARD_SRCS) $(MODULE_SRCS)
 
 BOARD_PCF   := $(HDL_DIR)/boards/$(BOARD)/$(BOARD_PCF_NAME)
 
-.PHONY: all test lint fmt fmt-check check \
-        hdl-build hdl-flash hdl-files hdl-fmt hdl-lint hdl-test \
-        sam-all run-bin run-sam clean help
-
 # --- top-level aggregate targets ------------------------------------------
 
+.PHONY: all
 all: sam-all hdl-build
 
+.PHONY: test
 test:
 	$(PYTHON) -m pytest
 
+.PHONY: lint
 lint:
 	$(UV) run ruff check
 	$(MAKE) hdl-lint
 
+.PHONY: fmt
 fmt:
 	$(UV) run ruff check --fix
 	$(UV) run ruff format
 	$(MAKE) hdl-fmt
 
+.PHONY: fmt-check
 fmt-check:
 	$(UV) run ruff format --check
 
+.PHONY: check
 check: lint test hdl-build
 
 # --- .sam assembly / running ----------------------------------------------
 
+.PHONY: sam-all
 sam-all: $(BIN_OUTS)
 
 # Assemble every .sam file under the known source directories into build/
@@ -58,6 +61,7 @@ $(BUILD_DIR)/%.bin: %.sam
 	$(ASSEMBLER) $< -o $@
 
 # Run a .bin in the VM: `make run-bin BIN=build/6_software/hello.bin`
+.PHONY: run-bin
 run-bin:
 ifndef BIN
 	$(error set BIN=path/to/program.bin (e.g. make run-bin BIN=build/6_software/hello.bin))
@@ -65,6 +69,7 @@ endif
 	$(VM) $(BIN)
 
 # Compile a .sam and run it in the VM: `make run-sam SAM=6_software/hello.sam`
+.PHONY: run-sam
 run-sam:
 ifndef SAM
 	$(error set SAM=path/to/program.sam (e.g. make run-sam SAM=6_software/hello.sam))
@@ -75,20 +80,26 @@ endif
 
 # --- HDL (System Verilog) -------------------------------------------------
 
+.PHONY: hdl-build
 hdl-build: $(HDL_BUILD)/top.bin
 
+.PHONY: hdl-flash
 hdl-flash: $(HDL_BUILD)/top.bin
 	$(BOARD_FLASH_CMD)
 
+.PHONY: hdl-files
 hdl-files:
 	@echo $(SV_SRCS) | tr ' ' '\n'
 
+.PHONY: hdl-fmt
 hdl-fmt:
 	verible-verilog-format --inplace $(SV_SRCS)
 
+.PHONY: hdl-lint
 hdl-lint:
 	verible-verilog-lint $(SV_SRCS)
 
+.PHONY: hdl-test
 hdl-test: test
 
 $(HDL_BUILD):
@@ -105,10 +116,12 @@ $(HDL_BUILD)/top.bin: $(HDL_BUILD)/top.asc
 
 # --- misc -----------------------------------------------------------------
 
+.PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
 
+.PHONY: help
 help:
 	@echo "Top-level targets:"
 	@echo "  all             Assemble .sam files and build HDL bitstream"
