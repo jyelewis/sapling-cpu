@@ -15,6 +15,7 @@ Usage — CLI:
     python vm.py program.bin --steps 100
     python vm.py program.bin --trace
 """
+
 from __future__ import annotations
 
 import argparse
@@ -34,8 +35,8 @@ SPECIAL_FLAGS = 2
 SPECIAL_PENDING_INTERRUPTS = 3
 
 # Carry-mode selectors, encoded in segment C of ADD/SUB (match CarryMode in assembler.py).
-CARRY_MODE_ZERO = 0      # carry-in forced to 0 — plain ADD/SUB
-CARRY_MODE_ONE = 1       # carry-in forced to 1
+CARRY_MODE_ZERO = 0  # carry-in forced to 0 — plain ADD/SUB
+CARRY_MODE_ONE = 1  # carry-in forced to 1
 CARRY_MODE_PREVIOUS = 2  # carry-in = previous value of CF — multi-byte chains
 
 MEMORY_SIZE = 65536
@@ -111,7 +112,7 @@ class SaplingCpuEmu:
     def load_program(self, data: bytes | bytearray, offset: int = 0) -> None:
         if offset + len(data) > MEMORY_SIZE:
             raise ValueError("Program does not fit in memory")
-        self.memory[offset:offset + len(data)] = data
+        self.memory[offset : offset + len(data)] = data
 
     def attach_io_device(self, device_num: int, device: IODevice) -> None:
         if not 0 <= device_num <= 7:
@@ -411,13 +412,15 @@ class SaplingCpuEmu:
 
     def dump_state(self) -> str:
         regs = "  ".join(f"R{i}=0x{v:02x}" for i, v in enumerate(self.registers))
-        flag_str = "".join([
-            "I" if self.flags & FLAG_IF else "-",
-            "O" if self.flags & FLAG_OF else "-",
-            "C" if self.flags & FLAG_CF else "-",
-            "N" if self.flags & FLAG_NF else "-",
-            "Z" if self.flags & FLAG_ZF else "-",
-        ])
+        flag_str = "".join(
+            [
+                "I" if self.flags & FLAG_IF else "-",
+                "O" if self.flags & FLAG_OF else "-",
+                "C" if self.flags & FLAG_CF else "-",
+                "N" if self.flags & FLAG_NF else "-",
+                "Z" if self.flags & FLAG_ZF else "-",
+            ]
+        )
         next_instr = (self.memory[self.pc] << 8) | self.memory[(self.pc + 1) & 0xFFFF]
         halt = "HALT" if self.halted else "RUN "
         return (
@@ -433,12 +436,13 @@ def _main() -> None:
         description="Run a Sapling CPU binary in the emulator.",
     )
     parser.add_argument("binary", help="Path to assembled .bin file")
-    parser.add_argument("--steps", type=int, default=None,
-                        help="Max instructions to execute (default: run to halt)")
-    parser.add_argument("--trace", action="store_true",
-                        help="Print CPU state before each instruction")
-    parser.add_argument("--no-console", action="store_true",
-                        help=f"Don't attach the default console IO device at slot {CONSOLE_DEVICE_NUM}")
+    parser.add_argument("--steps", type=int, default=None, help="Max instructions to execute (default: run to halt)")
+    parser.add_argument("--trace", action="store_true", help="Print CPU state before each instruction")
+    parser.add_argument(
+        "--no-console",
+        action="store_true",
+        help=f"Don't attach the default console IO device at slot {CONSOLE_DEVICE_NUM}",
+    )
     args = parser.parse_args()
 
     with open(args.binary, "rb") as f:

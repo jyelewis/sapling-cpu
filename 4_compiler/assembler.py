@@ -3,6 +3,7 @@ import os
 import shlex
 from enum import Enum
 
+
 class AssemblerException(Exception):
     pass
 
@@ -28,11 +29,9 @@ def expand_includes(
     for raw in lines:
         stripped = raw.split("//")[0].strip()
         if stripped.startswith("#include"):
-            args = shlex.split(stripped[len("#include"):].strip())
+            args = shlex.split(stripped[len("#include") :].strip())
             if len(args) != 1:
-                raise AssemblerException(
-                    f'Expected `#include "path"`, got: {raw!r}'
-                )
+                raise AssemblerException(f'Expected `#include "path"`, got: {raw!r}')
             include_path = args[0]
             if not os.path.isabs(include_path):
                 include_path = os.path.join(base_dir, include_path)
@@ -46,9 +45,7 @@ def expand_includes(
                 with open(include_path) as f:
                     included_lines = f.readlines()
             except FileNotFoundError as e:
-                raise AssemblerException(
-                    f"Cannot find included file {include_path!r}"
-                ) from e
+                raise AssemblerException(f"Cannot find included file {include_path!r}") from e
 
             out.extend(expand_includes(included_lines, include_path, _seen))
             continue
@@ -78,14 +75,14 @@ def tokenize(line: str) -> list[str]:
             end = line.find("]", i)
             if end == -1:
                 raise AssemblerException(f"Unterminated '#[' in: {line}")
-            tokens.append(line[i:end + 1])
+            tokens.append(line[i : end + 1])
             i = end + 1
             continue
         if c == "[":
             end = line.find("]", i)
             if end == -1:
                 raise AssemblerException(f"Unterminated '[' in: {line}")
-            tokens.append(line[i:end + 1])
+            tokens.append(line[i : end + 1])
             i = end + 1
             continue
         j = i
@@ -144,11 +141,13 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                 elif seg_2.startswith("#[SP"):
                     # LD reg = memory[SP + offset]                  LD R4 #[SP + 0x21]
                     offset = parse_asm_int(seg_2.strip("#[]").split("+")[1].strip())
-                    output_bin.append(assemble_instruction(
-                        Opcode.LOAD_REG_MEM_SP_REL,
-                        segment_a=dest_reg,
-                        immediate=to_signed_imm8(offset),
-                    ))
+                    output_bin.append(
+                        assemble_instruction(
+                            Opcode.LOAD_REG_MEM_SP_REL,
+                            segment_a=dest_reg,
+                            immediate=to_signed_imm8(offset),
+                        )
+                    )
 
                 elif seg_2.startswith("#["):
                     # LD reg = memory[reg hi . reg low]             LD R3 #[R4 R5]
@@ -158,12 +157,14 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                         raise AssemblerException(f"Expected two registers inside #[...], got {seg_2}")
                     reg_hi = parse_asm_reg(parts[0])
                     reg_low = parse_asm_reg(parts[1])
-                    output_bin.append(assemble_instruction(
-                        Opcode.LOAD_REG_MEM_ABSOLUTE,
-                        segment_a=dest_reg,
-                        segment_b=reg_hi,
-                        segment_c=reg_low,
-                    ))
+                    output_bin.append(
+                        assemble_instruction(
+                            Opcode.LOAD_REG_MEM_ABSOLUTE,
+                            segment_a=dest_reg,
+                            segment_b=reg_hi,
+                            segment_c=reg_low,
+                        )
+                    )
 
                 elif seg_2.startswith("$"):
                     # LD reg = special register                     LD R5 $FLAGS
@@ -193,11 +194,13 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                     # ST memory[SP + offset] = reg                  ST #[SP + 0x21] R4
                     offset = parse_asm_int(seg_1.strip("#[]").split("+")[1].strip())
                     src_reg = parse_asm_reg(seg_2)
-                    output_bin.append(assemble_instruction(
-                        Opcode.STORE_MEM_SP_REL_REG,
-                        segment_a=src_reg,
-                        immediate=to_signed_imm8(offset),
-                    ))
+                    output_bin.append(
+                        assemble_instruction(
+                            Opcode.STORE_MEM_SP_REL_REG,
+                            segment_a=src_reg,
+                            immediate=to_signed_imm8(offset),
+                        )
+                    )
 
                 elif seg_1.startswith("#["):
                     # ST memory[reg hi . reg low] = reg             ST #[R4 R5] R3
@@ -208,12 +211,14 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                     reg_hi = parse_asm_reg(parts[0])
                     reg_low = parse_asm_reg(parts[1])
                     src_reg = parse_asm_reg(seg_2)
-                    output_bin.append(assemble_instruction(
-                        Opcode.STORE_MEM_ABSOLUTE_REG,
-                        segment_a=reg_hi,
-                        segment_b=reg_low,
-                        segment_c=src_reg,
-                    ))
+                    output_bin.append(
+                        assemble_instruction(
+                            Opcode.STORE_MEM_ABSOLUTE_REG,
+                            segment_a=reg_hi,
+                            segment_b=reg_low,
+                            segment_c=src_reg,
+                        )
+                    )
 
                 elif seg_1.startswith("$"):
                     # ST special register = reg                     ST $FLAGS R5
@@ -235,21 +240,33 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
             case "ADD":
                 # ADD dest src [carry_mode]  — default carry_mode is CARRY_ZERO
                 carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
-                output_bin.append(assemble_instruction(
-                    Opcode.ADD, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode,
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.ADD,
+                        parse_asm_reg(seg_1),
+                        parse_asm_reg(seg_2),
+                        carry_mode,
+                    )
+                )
 
             case "SUB":
                 # SUB dest src [carry_mode]  — default carry_mode is CARRY_ZERO
                 carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
-                output_bin.append(assemble_instruction(
-                    Opcode.SUB, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode,
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.SUB,
+                        parse_asm_reg(seg_1),
+                        parse_asm_reg(seg_2),
+                        carry_mode,
+                    )
+                )
 
             case "CMP":
                 # CMP reg1 reg2 [carry_mode]  — default carry_mode is CARRY_ZERO
                 carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
-                output_bin.append(assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode))
+                output_bin.append(
+                    assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode)
+                )
 
             case "AND":
                 output_bin.append(assemble_instruction(Opcode.AND, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
@@ -295,28 +312,36 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                 output_bin.append(assemble_instruction(Opcode.RET))
 
             case "BEQ":
-                output_bin.append(assemble_instruction(
-                    Opcode.BEQ,
-                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.BEQ,
+                        immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                    )
+                )
 
             case "BLT":
-                output_bin.append(assemble_instruction(
-                    Opcode.BLT,
-                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.BLT,
+                        immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                    )
+                )
 
             case "BOV":
-                output_bin.append(assemble_instruction(
-                    Opcode.BOV,
-                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.BOV,
+                        immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                    )
+                )
 
             case "BCS":
-                output_bin.append(assemble_instruction(
-                    Opcode.BCS,
-                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
-                ))
+                output_bin.append(
+                    assemble_instruction(
+                        Opcode.BCS,
+                        immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                    )
+                )
 
             case "PUSH":
                 output_bin.append(assemble_instruction(Opcode.PUSH, parse_asm_reg(seg_1)))
@@ -368,11 +393,13 @@ class Opcode(Enum):
     def to_int(self) -> int:
         return self.value
 
+
 class CarryMode(Enum):
     """Optional segment-C modifier on ADD/SUB selecting how the carry-in is sourced."""
-    CARRY_ZERO = 0       # carry-in forced to 0 (plain ADD / SUB)
-    CARRY_ONE = 1        # carry-in forced to 1
-    CARRY_PREVIOUS = 2   # carry-in = previous value of CF (multi-byte add/sub chains)
+
+    CARRY_ZERO = 0  # carry-in forced to 0 (plain ADD / SUB)
+    CARRY_ONE = 1  # carry-in forced to 1
+    CARRY_PREVIOUS = 2  # carry-in = previous value of CF (multi-byte add/sub chains)
 
     @staticmethod
     def from_str(carry_mode_str: str):
@@ -414,14 +441,18 @@ class SpecialReg(Enum):
         return self.value
 
 
-def assemble_instruction(opcode: Opcode, segment_a: int = None, segment_b: int = None, segment_c: int = None, immediate: int = None) -> int:
+def assemble_instruction(
+    opcode: Opcode, segment_a: int = None, segment_b: int = None, segment_c: int = None, immediate: int = None
+) -> int:
     # 16 bit instruction format:
     # 15    14    13    12    11    10     9     8     7     6     5     4     3     2     1     0
     # [         Opcode         ]    [  Segment A ]     [ Segment B ]     [ Segment C ]
     # [         Opcode         ]    [  Segment A ]     [              Immediate Value            ]
 
     # we can only use one of our two instruction formats
-    assert immediate is None or (segment_b is None and segment_c is None), "Cannot provide segment b or c when an immediate is provided"
+    assert immediate is None or (segment_b is None and segment_c is None), (
+        "Cannot provide segment b or c when an immediate is provided"
+    )
 
     # check we have no overflows
     assert opcode.to_int() == opcode.to_int() & 0b11111, "Opcode does not fit in 5 bits"
@@ -447,6 +478,7 @@ def assemble_instruction(opcode: Opcode, segment_a: int = None, segment_b: int =
 
     return instruction
 
+
 def parse_reg_pair_bracket(bracket_str: str) -> tuple[int, int]:
     """Parse a `[Rhi Rlo]` indirect-address operand.
 
@@ -470,6 +502,7 @@ def parse_asm_reg(asm_reg_str: str) -> int:
 
     return reg_number
 
+
 def parse_asm_device(asm_io_str: str) -> int:
     if asm_io_str is None or not asm_io_str.startswith("DEV"):
         raise AssemblerException(f"Expected IO device to start with DEV, got {asm_io_str!r}")
@@ -480,8 +513,10 @@ def parse_asm_device(asm_io_str: str) -> int:
 
     return device_number
 
+
 def parse_asm_int(asm_int_str: str) -> int:
     return int(asm_int_str, 0)
+
 
 def to_signed_imm8(value: int) -> int:
     # ensure our value fits in a signed imm8
@@ -507,9 +542,7 @@ def relative_offset_to_label(labels: dict[str, int], name: str, current_instr_id
         raise AssemblerException(f"Unknown label {name!r}")
     offset = labels[name] - current_instr_idx - 1
     if offset < -128 or offset > 127:
-        raise AssemblerException(
-            f"Branch to {name!r} out of range: offset {offset} does not fit in signed imm8"
-        )
+        raise AssemblerException(f"Branch to {name!r} out of range: offset {offset} does not fit in signed imm8")
     return offset
 
 
@@ -523,14 +556,11 @@ def resolve_branch_offset(labels: dict[str, int], operand: str, current_instr_id
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog='Sapling Assembler',
-        description='Assembles sapling ASM text into binary'
-    )
+    parser = argparse.ArgumentParser(prog="Sapling Assembler", description="Assembles sapling ASM text into binary")
 
-    parser.add_argument('filename')
-    parser.add_argument('-f', '--format', choices=['bin', 'hex', 'debug'], default='bin')
-    parser.add_argument('-o', '--output', help='Output file path. If omitted, writes to stdout.')
+    parser.add_argument("filename")
+    parser.add_argument("-f", "--format", choices=["bin", "hex", "debug"], default="bin")
+    parser.add_argument("-o", "--output", help="Output file path. If omitted, writes to stdout.")
 
     args = parser.parse_args()
 
@@ -539,7 +569,7 @@ if __name__ == "__main__":
     asm_lines = expand_includes(asm_lines, args.filename)
     output_words = asm_to_bin(asm_lines)
 
-    if args.format == 'hex':
+    if args.format == "hex":
         hex_output_lines: list[str] = []
         for word in output_words:
             hex_output_lines.append(f"{word:04x}")
@@ -550,18 +580,20 @@ if __name__ == "__main__":
         else:
             print(text_output)
 
-    elif args.format == 'debug':
+    elif args.format == "debug":
         debug_output_lines: list[str] = []
         for word in output_words:
             opcode = (word & 0b1111100000000000) >> 11
             opcode_name = Opcode(opcode).name
 
-            seg_a = (word &  0b0000011100000000) >> 8
-            seg_b = (word &  0b0000000011100000) >> 5
-            seg_c = (word &  0b0000000000011100) >> 2
-            imm8  = (word &  0b0000000011111111)
+            seg_a = (word & 0b0000011100000000) >> 8
+            seg_b = (word & 0b0000000011100000) >> 5
+            seg_c = (word & 0b0000000000011100) >> 2
+            imm8 = word & 0b0000000011111111
 
-            debug_output_lines.append(f"Instruction: {word:04x}  opcode: {opcode:02x} {opcode_name:<20}  seg_a: {seg_a}  seg_b: {seg_b}  seg_c: {seg_c}  imm8: {imm8}")
+            debug_output_lines.append(
+                f"Instruction: {word:04x}  opcode: {opcode:02x} {opcode_name:<20}  seg_a: {seg_a}  seg_b: {seg_b}  seg_c: {seg_c}  imm8: {imm8}"
+            )
         text_output = "\n".join(debug_output_lines)
         if args.output:
             with open(args.output, "w") as f:
@@ -571,10 +603,9 @@ if __name__ == "__main__":
     else:
         output_bytes = bytearray()
         for word in output_words:
-            output_bytes.extend(word.to_bytes(2, byteorder='big'))
+            output_bytes.extend(word.to_bytes(2, byteorder="big"))
         if args.output:
             with open(args.output, "wb") as f:
                 f.write(output_bytes)
         else:
             print(output_bytes)
-

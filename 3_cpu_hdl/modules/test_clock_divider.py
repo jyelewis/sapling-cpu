@@ -10,6 +10,7 @@ async def reset_dut(dut):
     await ClockCycles(dut.clk_in, 2)
     dut.reset.value = 0
 
+
 @cocotb.test()
 async def test_output_clock(dut):
     cocotb.start_soon(Clock(dut.clk_in, 2, unit="ns").start())

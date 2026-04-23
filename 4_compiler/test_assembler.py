@@ -81,14 +81,16 @@ def test_tokenize_commas_are_whitespace():
 
 
 def test_alu_two_operand_ops():
-    words = asm_to_bin([
-        "ADD R1 R2",
-        "SUB R3 R4",
-        "CMP R5 R6",
-        "AND R0 R7",
-        "OR R1 R2",
-        "XOR R3 R4",
-    ])
+    words = asm_to_bin(
+        [
+            "ADD R1 R2",
+            "SUB R3 R4",
+            "CMP R5 R6",
+            "AND R0 R7",
+            "OR R1 R2",
+            "XOR R3 R4",
+        ]
+    )
     opcodes = [Opcode.ADD, Opcode.SUB, Opcode.CMP, Opcode.AND, Opcode.OR, Opcode.XOR]
     pairs = [(1, 2), (3, 4), (5, 6), (0, 7), (1, 2), (3, 4)]
     for word, opcode, (a, b) in zip(words, opcodes, pairs, strict=True):
@@ -117,12 +119,14 @@ def test_add_sub_default_carry_mode_zero():
 
 
 def test_add_sub_explicit_carry_modes():
-    words = asm_to_bin([
-        "ADD R1 R2 CARRY_ZERO",
-        "ADD R1 R2 CARRY_ONE",
-        "ADD R1 R2 CARRY_PREVIOUS",
-        "SUB R3 R4 CARRY_PREVIOUS",
-    ])
+    words = asm_to_bin(
+        [
+            "ADD R1 R2 CARRY_ZERO",
+            "ADD R1 R2 CARRY_ONE",
+            "ADD R1 R2 CARRY_PREVIOUS",
+            "SUB R3 R4 CARRY_PREVIOUS",
+        ]
+    )
     assert _decode(words[0])[3] == 0
     assert _decode(words[1])[3] == 1
     assert _decode(words[2])[3] == 2
@@ -167,13 +171,15 @@ def test_call_reg_pair_requires_brackets():
 def test_jmp_relative_forward_label():
     # NOP @ 0, JMP -> target @ 3 (after JMP at index 1).
     # VM adds offset AFTER PC has advanced past the branch, so offset = 3 - 1 - 1 = 1.
-    words = asm_to_bin([
-        "NOP",
-        "JMP #target",
-        "NOP",
-        "target:",
-        "NOP",
-    ])
+    words = asm_to_bin(
+        [
+            "NOP",
+            "JMP #target",
+            "NOP",
+            "target:",
+            "NOP",
+        ]
+    )
     op, _, _, _, imm = _decode(words[1])
     assert op == Opcode.JMP_REL.to_int()
     assert imm == 1
@@ -181,26 +187,30 @@ def test_jmp_relative_forward_label():
 
 def test_jmp_relative_backward_label():
     # target @ 0, ..., JMP #target @ 2.  offset = 0 - 2 - 1 = -3 -> 0xFD
-    words = asm_to_bin([
-        "target:",
-        "NOP",
-        "NOP",
-        "JMP #target",
-    ])
+    words = asm_to_bin(
+        [
+            "target:",
+            "NOP",
+            "NOP",
+            "JMP #target",
+        ]
+    )
     op, _, _, _, imm = _decode(words[2])
     assert op == Opcode.JMP_REL.to_int()
     assert imm == to_signed_imm8(-3)
 
 
 def test_branch_mnemonics():
-    words = asm_to_bin([
-        "BEQ #skip",
-        "BLT #skip",
-        "BOV #skip",
-        "BCS #skip",
-        "skip:",
-        "NOP",
-    ])
+    words = asm_to_bin(
+        [
+            "BEQ #skip",
+            "BLT #skip",
+            "BOV #skip",
+            "BCS #skip",
+            "skip:",
+            "NOP",
+        ]
+    )
     expected_opcodes = [Opcode.BEQ, Opcode.BLT, Opcode.BOV, Opcode.BCS]
     expected_offsets = [3, 2, 1, 0]  # from each branch at i to target at 4: 4 - i - 1
     for i, (opcode, offset) in enumerate(zip(expected_opcodes, expected_offsets, strict=True)):
@@ -236,13 +246,15 @@ def test_branch_out_of_range_raises():
 
 def test_load_label_hi_lo():
     # target is the 4th instruction (index 3) -> byte address 6 -> hi=0, lo=6
-    words = asm_to_bin([
-        "LD R0 >target",
-        "LD R1 <target",
-        "NOP",
-        "target:",
-        "NOP",
-    ])
+    words = asm_to_bin(
+        [
+            "LD R0 >target",
+            "LD R1 <target",
+            "NOP",
+            "target:",
+            "NOP",
+        ]
+    )
     op0, a0, _, _, imm0 = _decode(words[0])
     op1, a1, _, _, imm1 = _decode(words[1])
     assert op0 == Opcode.LOAD_REG_IMM8.to_int()
@@ -263,14 +275,16 @@ def test_load_label_hi_lo_large_address():
 
 def test_full_call_via_label():
     # Build the target address into R0:R1 then CALL.
-    words = asm_to_bin([
-        "LD R0 >func",
-        "LD R1 <func",
-        "CALL [R0 R1]",
-        "WFI",
-        "func:",
-        "RET",
-    ])
+    words = asm_to_bin(
+        [
+            "LD R0 >func",
+            "LD R1 <func",
+            "CALL [R0 R1]",
+            "WFI",
+            "func:",
+            "RET",
+        ]
+    )
     # CALL at index 2 uses R0, R1
     op, a, b, _, _ = _decode(words[2])
     assert op == Opcode.CALL.to_int()
@@ -335,4 +349,3 @@ def test_include_missing_file_raises(tmp_path):
 
     with pytest.raises(AssemblerException):
         expand_includes(main.read_text().splitlines(keepends=True), str(main))
-

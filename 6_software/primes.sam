@@ -42,10 +42,21 @@ LD R0 0x03
         // print primes as we find them
         
         // convert to ascii & print
-        LD R6 R0
-        LD R5 0x30
-        ADD R6 R5
-        OUT DEV7 R6
+        PUSH R0
+        //LD R6 R0
+        //LD R5 0x30
+        //ADD R6 R5
+        //OUT DEV7 R6
+        
+        LD R5 >print_decimal
+        LD R6 <print_decimal
+        CALL [R5 R6]
+        
+        // print ',' between values
+        LD R0 0x2C
+        OUT DEV7 R0
+        
+        POP R0
         
         // fall through
         
@@ -62,3 +73,5 @@ LD R0 0x03
     // end loop 'loop0_check_reg0_prime'
     exit:
     WFI
+
+#include "print_decimal.sam"

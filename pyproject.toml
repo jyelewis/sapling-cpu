@@ -36,3 +36,4 @@ ignore = [
 
 [tool.pytest.ini_options]
 testpaths = ["3_cpu_hdl", "4_compiler", "5_vm"]
+pythonpath = ["4_compiler", "5_vm", "3_cpu_hdl/modules"]
