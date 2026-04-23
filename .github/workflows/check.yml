@@ -29,22 +29,27 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Format check
-        working-directory: 3_cpu_hdl
+      - name: Sync python dependencies
+        run: uv sync
+
+      - name: Python lint (ruff)
+        run: uv run ruff check
+
+      - name: Python format check (ruff)
+        run: uv run ruff format --check
+
+      - name: HDL format check
         run: |
-          make fmt
-          git diff --exit-code -- . || (echo "Files not formatted. Run 'make fmt' and commit." && exit 1)
+          make hdl-fmt
+          git diff --exit-code -- . || (echo "HDL files not formatted. Run 'make hdl-fmt' and commit." && exit 1)
 
-      - name: Lint
-        working-directory: 3_cpu_hdl
-        run: make lint
+      - name: HDL lint
+        run: make hdl-lint
 
-      - name: Build
-        working-directory: 3_cpu_hdl
-        run: make build
+      - name: HDL build
+        run: make hdl-build
 
-      - name: Test
-        working-directory: 3_cpu_hdl
+      - name: Tests
         run: |
           export PATH="/usr/bin:/usr/local/bin:$PATH"
           make test

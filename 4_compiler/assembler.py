@@ -1,8 +1,61 @@
 import argparse
+import os
+import shlex
 from enum import Enum
 
 class AssemblerException(Exception):
     pass
+
+
+def expand_includes(
+    lines: list[str],
+    source_path: str | None = None,
+    _seen: set[str] | None = None,
+) -> list[str]:
+    """Recursively expand `#include "path"` directives.
+
+    Paths are resolved relative to the including file's directory. Each file is
+    included at most once per compilation — a second include of the same file
+    is silently skipped, which lets a .sam file depend on shared helpers without
+    worrying about whether they were already pulled in transitively.
+    """
+    if _seen is None:
+        _seen = set()
+
+    base_dir = os.path.dirname(os.path.abspath(source_path)) if source_path else os.getcwd()
+    out: list[str] = []
+
+    for raw in lines:
+        stripped = raw.split("//")[0].strip()
+        if stripped.startswith("#include"):
+            args = shlex.split(stripped[len("#include"):].strip())
+            if len(args) != 1:
+                raise AssemblerException(
+                    f'Expected `#include "path"`, got: {raw!r}'
+                )
+            include_path = args[0]
+            if not os.path.isabs(include_path):
+                include_path = os.path.join(base_dir, include_path)
+            include_path = os.path.abspath(include_path)
+
+            if include_path in _seen:
+                continue
+            _seen.add(include_path)
+
+            try:
+                with open(include_path) as f:
+                    included_lines = f.readlines()
+            except FileNotFoundError as e:
+                raise AssemblerException(
+                    f"Cannot find included file {include_path!r}"
+                ) from e
+
+            out.extend(expand_includes(included_lines, include_path, _seen))
+            continue
+
+        out.append(raw)
+
+    return out
 
 
 def tokenize(line: str) -> list[str]:
@@ -481,8 +534,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.filename, "r") as f:
+    with open(args.filename) as f:
         asm_lines = f.readlines()
+    asm_lines = expand_includes(asm_lines, args.filename)
     output_words = asm_to_bin(asm_lines)
 
     if args.format == 'hex':

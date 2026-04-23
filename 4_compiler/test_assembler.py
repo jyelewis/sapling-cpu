@@ -1,10 +1,10 @@
 import pytest
-
 from assembler import (
     AssemblerException,
     Opcode,
     asm_to_bin,
     assemble_instruction,
+    expand_includes,
     parse_asm_int,
     to_signed_imm8,
     tokenize,
@@ -91,7 +91,7 @@ def test_alu_two_operand_ops():
     ])
     opcodes = [Opcode.ADD, Opcode.SUB, Opcode.CMP, Opcode.AND, Opcode.OR, Opcode.XOR]
     pairs = [(1, 2), (3, 4), (5, 6), (0, 7), (1, 2), (3, 4)]
-    for word, opcode, (a, b) in zip(words, opcodes, pairs):
+    for word, opcode, (a, b) in zip(words, opcodes, pairs, strict=True):
         decoded = _decode(word)
         assert decoded[0] == opcode.to_int()
         assert decoded[1] == a
@@ -203,7 +203,7 @@ def test_branch_mnemonics():
     ])
     expected_opcodes = [Opcode.BEQ, Opcode.BLT, Opcode.BOV, Opcode.BCS]
     expected_offsets = [3, 2, 1, 0]  # from each branch at i to target at 4: 4 - i - 1
-    for i, (opcode, offset) in enumerate(zip(expected_opcodes, expected_offsets)):
+    for i, (opcode, offset) in enumerate(zip(expected_opcodes, expected_offsets, strict=True)):
         op, _, _, _, imm = _decode(words[i])
         assert op == opcode.to_int()
         assert imm == offset
@@ -288,4 +288,51 @@ def test_store_absolute_reg_reg_reg():
     op, a, b, c, _ = _decode(words[0])
     assert op == Opcode.STORE_MEM_ABSOLUTE_REG.to_int()
     assert (a, b, c) == (4, 5, 3)
+
+
+# --- include directive -----------------------------------------------------
+
+
+def test_include_expands_relative_path(tmp_path):
+    lib = tmp_path / "lib.sam"
+    lib.write_text("NOP\nNOP\n")
+    main = tmp_path / "main.sam"
+    main.write_text('#include "lib.sam"\nNOP\n')
+
+    lines = expand_includes(main.read_text().splitlines(keepends=True), str(main))
+    words = asm_to_bin(lines)
+    assert words == [0, 0, 0]
+
+
+def test_include_is_idempotent(tmp_path):
+    lib = tmp_path / "lib.sam"
+    lib.write_text("NOP\n")
+    main = tmp_path / "main.sam"
+    main.write_text('#include "lib.sam"\n#include "lib.sam"\n')
+
+    lines = expand_includes(main.read_text().splitlines(keepends=True), str(main))
+    words = asm_to_bin(lines)
+    assert words == [0]
+
+
+def test_include_resolves_nested_relative_paths(tmp_path):
+    (tmp_path / "sub").mkdir()
+    leaf = tmp_path / "sub" / "leaf.sam"
+    leaf.write_text("NOP\n")
+    mid = tmp_path / "sub" / "mid.sam"
+    mid.write_text('#include "leaf.sam"\n')
+    main = tmp_path / "main.sam"
+    main.write_text('#include "sub/mid.sam"\n')
+
+    lines = expand_includes(main.read_text().splitlines(keepends=True), str(main))
+    words = asm_to_bin(lines)
+    assert words == [0]
+
+
+def test_include_missing_file_raises(tmp_path):
+    main = tmp_path / "main.sam"
+    main.write_text('#include "does_not_exist.sam"\n')
+
+    with pytest.raises(AssemblerException):
+        expand_includes(main.read_text().splitlines(keepends=True), str(main))
 

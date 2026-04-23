@@ -19,8 +19,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Optional
-
 
 # Flag bits in the FLAGS register
 FLAG_ZF = 1 << 0  # Zero
@@ -52,8 +50,8 @@ class IODevice:
     """
 
     def __init__(self) -> None:
-        self.cpu: Optional["SaplingCpuEmu"] = None
-        self.device_num: Optional[int] = None
+        self.cpu: SaplingCpuEmu | None = None
+        self.device_num: int | None = None
 
     def read(self) -> int:
         return 0
@@ -153,7 +151,7 @@ class SaplingCpuEmu:
         self._execute(instr)
         self.instructions_executed += 1
 
-    def run(self, max_steps: Optional[int] = None, trace: bool = False) -> int:
+    def run(self, max_steps: int | None = None, trace: bool = False) -> int:
         """Run until the CPU is halted with no pending interrupts, or max_steps reached.
 
         Returns the number of steps executed.

@@ -1,0 +1,33 @@
+// Demo: print a few decimal numbers separated by commas, then halt.
+
+main:
+    // print 0
+    LD R0 0
+    LD R6 >print_decimal
+    LD R7 <print_decimal
+    CALL [R6 R7]
+
+    LD R0 0x2C              // ','
+    OUT DEV7 R0
+
+    // print 42
+    LD R0 42
+    LD R6 >print_decimal
+    LD R7 <print_decimal
+    CALL [R6 R7]
+
+    LD R0 0x2C              // ','
+    OUT DEV7 R0
+
+    // print 255
+    LD R0 255
+    LD R6 >print_decimal
+    LD R7 <print_decimal
+    CALL [R6 R7]
+
+    LD R0 0x0A              // '\n'
+    OUT DEV7 R0
+
+    WFI
+
+#include "print_decimal.sam"

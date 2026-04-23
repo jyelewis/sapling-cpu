@@ -12,7 +12,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "4_compiler"))
 
-from assembler import asm_to_bin, assemble_instruction, Opcode, to_signed_imm8  # noqa: E402
+from assembler import (  # noqa: E402
+    Opcode,
+    asm_to_bin,
+    assemble_instruction,
+    to_signed_imm8,
+)
 from vm import (  # noqa: E402
     FLAG_CF,
     FLAG_NF,
@@ -32,11 +37,6 @@ def words_to_bytes(words: list[int]) -> bytes:
 
 def assemble_source(source: str) -> bytes:
     return words_to_bytes(asm_to_bin(source.splitlines()))
-
-
-def assemble_file(path: str) -> bytes:
-    with open(path) as f:
-        return assemble_source(f.read())
 
 
 def run_words(words: list[int], *, max_steps: int = 1000,

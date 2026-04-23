@@ -6,3 +6,33 @@ dependencies = [
     "cocotb>=2.0.1",
     "pytest>=9.0.3",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+extend-exclude = ["build"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+]
+ignore = [
+    "E501", # line too long (let formatter handle it)
+    "E701", # multiple statements on one line (colon)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["B011"]
+
+[tool.pytest.ini_options]
+testpaths = ["3_cpu_hdl", "4_compiler", "5_vm"]

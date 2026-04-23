@@ -9,12 +9,12 @@ Design and implementation of a simple CPU in System Verilog. The CPU is designed
  - icepack: Tool for converting the .asc bitstream to ICE .bin bitstream format
  - verible: System Verilog linting and formatting
 
-# Commands:
- - `make build`: Compile the System Verilog code and generate the .bin FPGA bitstream
- - `make flash`: Flash the generated .bin FPGA bitstream to a connected iCE40 FPGA using
- - `make clean`: Clean up generated files and directories
- - `make files`: List .sv files that will be included in the build
- - `make test`: Run all cocotb tests
- - `make fmt`: Format, remove trailing commas, fix intendeation, imports, etc
- - `make lint`: Check style rules
- - `make check`: fmt, lint, build
+All commands live in the root `Makefile`. HDL-specific targets are prefixed with `hdl-`:
+
+ - `make hdl-build` — synthesize + place+route + pack the FPGA bitstream
+ - `make hdl-flash` — flash the bitstream to a connected iCE40 FPGA
+ - `make hdl-files` — list .sv files included in the build
+ - `make hdl-fmt`   — format .sv sources with verible
+ - `make hdl-lint`  — lint .sv sources with verible
+ - `make test`      — run all pytest suites (includes cocotb)
+ - `make check`     — lint + test + hdl-build
