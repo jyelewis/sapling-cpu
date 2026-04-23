@@ -1,5 +1,6 @@
 import pytest
-from assembler import (
+
+from pkg4_compiler.assembler import (
     AssemblerException,
     Opcode,
     asm_to_bin,

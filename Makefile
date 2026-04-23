@@ -1,16 +1,16 @@
 PYTHON      ?= uv run python
 UV          ?= uv
 
-ASSEMBLER   := $(PYTHON) 4_compiler/assembler.py
-VM          := $(PYTHON) 5_vm/vm.py
+ASSEMBLER   := $(PYTHON) pkg4_compiler/assembler.py
+VM          := $(PYTHON) pkg5_vm/vm.py
 
 BUILD_DIR   := build
-SAM_DIRS    := 4_compiler 5_vm/programs 6_software
+SAM_DIRS    := pkg4_compiler pkg5_vm/programs pkg6_software
 SAM_SRCS    := $(foreach d,$(SAM_DIRS),$(wildcard $(d)/*.sam))
 BIN_OUTS    := $(patsubst %.sam,$(BUILD_DIR)/%.bin,$(SAM_SRCS))
 
 # ---- HDL ----
-HDL_DIR     := 3_cpu_hdl
+HDL_DIR     := pkg3_cpu_hdl
 BOARD       ?= icesugar
 HDL_BUILD   := $(BUILD_DIR)/$(HDL_DIR)/$(BOARD)
 
@@ -48,7 +48,7 @@ fmt-check:
 	$(UV) run ruff format --check
 
 .PHONY: check
-check: lint test hdl-build
+check: lint test sam-all hdl-build
 
 # --- .sam assembly / running ----------------------------------------------
 
@@ -60,19 +60,19 @@ $(BUILD_DIR)/%.bin: %.sam
 	@mkdir -p $(dir $@)
 	$(ASSEMBLER) $< -o $@
 
-# Run a .bin in the VM: `make run-bin BIN=build/6_software/hello.bin`
+# Run a .bin in the VM: `make run-bin BIN=build/pkg6_software/hello.bin`
 .PHONY: run-bin
 run-bin:
 ifndef BIN
-	$(error set BIN=path/to/program.bin (e.g. make run-bin BIN=build/6_software/hello.bin))
+	$(error set BIN=path/to/program.bin (e.g. make run-bin BIN=build/pkg6_software/hello.bin))
 endif
 	$(VM) $(BIN)
 
-# Compile a .sam and run it in the VM: `make run-sam SAM=6_software/hello.sam`
+# Compile a .sam and run it in the VM: `make run-sam SAM=pkg6_software/hello.sam`
 .PHONY: run-sam
 run-sam:
 ifndef SAM
-	$(error set SAM=path/to/program.sam (e.g. make run-sam SAM=6_software/hello.sam))
+	$(error set SAM=path/to/program.sam (e.g. make run-sam SAM=pkg6_software/hello.sam))
 endif
 	@mkdir -p $(dir $(BUILD_DIR)/$(SAM:.sam=.bin))
 	$(ASSEMBLER) $(SAM) -o $(BUILD_DIR)/$(SAM:.sam=.bin)
@@ -98,9 +98,6 @@ hdl-fmt:
 .PHONY: hdl-lint
 hdl-lint:
 	verible-verilog-lint $(SV_SRCS)
-
-.PHONY: hdl-test
-hdl-test: test
 
 $(HDL_BUILD):
 	mkdir -p $@

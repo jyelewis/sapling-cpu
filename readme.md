@@ -2,5 +2,5 @@
 
 Commands
  - `make test`
- - `make run-sam SAM=6_software/hello.sam`
- - `make run-sam SAM=6_software/primes.sam`
+ - `make run-sam SAM=pkg6_software/hello.sam`
+ - `make run-sam SAM=pkg6_software/primes.sam`

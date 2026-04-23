@@ -6,13 +6,13 @@ Two paths are exercised:
      needs precise control over opcodes/operands.
 """
 
-from assembler import (
+from pkg4_compiler.assembler import (
     Opcode,
     asm_to_bin,
     assemble_instruction,
     to_signed_imm8,
 )
-from vm import (
+from pkg5_vm.vm import (
     FLAG_CF,
     FLAG_NF,
     FLAG_OF,

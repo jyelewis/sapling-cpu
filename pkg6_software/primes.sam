@@ -1,7 +1,7 @@
 LD R0 0x03
 
     // R4 = search limit
-    LD R4 0x18
+    LD R4 150
     
     loop0_check_prime:
         LD R1 2
@@ -43,6 +43,10 @@ LD R0 0x03
         
         // convert to ascii & print
         PUSH R0
+        PUSH R1
+        PUSH R2
+        PUSH R3
+        PUSH R4
         //LD R6 R0
         //LD R5 0x30
         //ADD R6 R5
@@ -56,6 +60,10 @@ LD R0 0x03
         LD R0 0x2C
         OUT DEV7 R0
         
+        POP R4
+        POP R3
+        POP R2
+        POP R1
         POP R0
         
         // fall through

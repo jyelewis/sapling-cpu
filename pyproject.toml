@@ -35,5 +35,4 @@ ignore = [
 "**/test_*.py" = ["B011"]
 
 [tool.pytest.ini_options]
-testpaths = ["3_cpu_hdl", "4_compiler", "5_vm"]
-pythonpath = ["4_compiler", "5_vm", "3_cpu_hdl/modules"]
+testpaths = ["pkg3_cpu_hdl", "pkg4_compiler", "pkg5_vm"]

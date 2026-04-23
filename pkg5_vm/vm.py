@@ -1,6 +1,6 @@
 """Sapling CPU virtual machine.
 
-Emulates the Sapling CPU as described in 1_design/ISA/.
+Emulates the Sapling CPU as described in pkg1_design/ISA/.
 
 Usage — library:
     cpu = SaplingCpuEmu()
