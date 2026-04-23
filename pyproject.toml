@@ -33,6 +33,3 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/test_*.py" = ["B011"]
-
-[tool.pytest.ini_options]
-testpaths = ["pkg3_cpu_hdl", "pkg4_compiler", "pkg5_vm"]
