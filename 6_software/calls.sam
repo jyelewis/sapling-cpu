@@ -1,0 +1,18 @@
+
+main:
+LD R0 0x30
+LD R1 0x11
+
+LD R6 >add                                                                   
+LD R7 <add                                                                                                                                                                                                                
+CALL [R6 R7]  
+OUT DEV7 R2
+
+WFI
+
+
+add:
+// add R0 and R1, return result in R2
+ADD R2 R0
+ADD R2 R1
+RET
