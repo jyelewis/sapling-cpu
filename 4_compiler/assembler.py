@@ -114,9 +114,26 @@ class Opcode(Enum):
     STORE_SPECIAL_REG = 0x08
     IN = 0x09
     OUT = 0x0A
-
+    ADD = 0x0B
+    SUB = 0x0C
+    CMP = 0x0D
+    AND = 0x0E
+    OR = 0x0F
+    XOR = 0x10
+    SHL = 0x11
+    SHR = 0x12
+    JMP_REL = 0x13
+    JMP_REG = 0x14
+    CALL = 0x15
+    RET = 0x16
+    BEQ = 0x17
+    BLT = 0x18
+    BOV = 0x19
+    BCS = 0x1A
+    PUSH = 0x1B
+    POP = 0x1C
     WFI = 0x1D
-    
+
     def to_int(self) -> int:
         return self.value
     
@@ -235,34 +252,50 @@ if __name__ == "__main__":
     
     parser.add_argument('filename')
     parser.add_argument('-f', '--format', choices=['bin', 'hex', 'debug'], default='bin')
-    
+    parser.add_argument('-o', '--output', help='Output file path. If omitted, writes to stdout.')
+
     args = parser.parse_args()
-    
+
     with open(args.filename, "r") as f:
         asm_lines = f.readlines()
-        output_words = asm_to_bin(asm_lines)
-        
-        if args.format == 'hex':
-            hex_output_lines: list[str] = []
-            for word in output_words:
-                hex_output_lines.append(f"{word:04x}")
-            print("\n".join(hex_output_lines))
-        if args.format == 'debug':
-            debug_output_lines: list[str] = []
-            for word in output_words:
-                opcode = (word & 0b1111100000000000) >> 11
-                opcode_name = Opcode(opcode).name
-                
-                seg_a = (word &  0b0000011100000000) >> 8
-                seg_b = (word &  0b0000000011100000) >> 5
-                seg_c = (word &  0b0000000000011100) >> 2
-                imm8  = (word &  0b0000000011111111)
-                
-                debug_output_lines.append(f"Instruction: {word:04x}  opcode: {opcode:02x} {opcode_name:<20}  seg_a: {seg_a}  seg_b: {seg_b}  seg_c: {seg_c}  imm8: {imm8}")
-            print("\n".join(debug_output_lines))
+    output_words = asm_to_bin(asm_lines)
+
+    if args.format == 'hex':
+        hex_output_lines: list[str] = []
+        for word in output_words:
+            hex_output_lines.append(f"{word:04x}")
+        text_output = "\n".join(hex_output_lines)
+        if args.output:
+            with open(args.output, "w") as f:
+                f.write(text_output)
         else:
-            output_bytes = bytearray()
-            for word in output_words:
-                output_bytes.extend(word.to_bytes(2, byteorder='big'))
+            print(text_output)
+
+    elif args.format == 'debug':
+        debug_output_lines: list[str] = []
+        for word in output_words:
+            opcode = (word & 0b1111100000000000) >> 11
+            opcode_name = Opcode(opcode).name
+
+            seg_a = (word &  0b0000011100000000) >> 8
+            seg_b = (word &  0b0000000011100000) >> 5
+            seg_c = (word &  0b0000000000011100) >> 2
+            imm8  = (word &  0b0000000011111111)
+
+            debug_output_lines.append(f"Instruction: {word:04x}  opcode: {opcode:02x} {opcode_name:<20}  seg_a: {seg_a}  seg_b: {seg_b}  seg_c: {seg_c}  imm8: {imm8}")
+        text_output = "\n".join(debug_output_lines)
+        if args.output:
+            with open(args.output, "w") as f:
+                f.write(text_output)
+        else:
+            print(text_output)
+    else:
+        output_bytes = bytearray()
+        for word in output_words:
+            output_bytes.extend(word.to_bytes(2, byteorder='big'))
+        if args.output:
+            with open(args.output, "wb") as f:
+                f.write(output_bytes)
+        else:
             print(output_bytes)
     
