@@ -316,7 +316,9 @@ class SaplingCpuEmu:
         if opcode == 0x0D:  # CMP
             a = self.registers[seg_a]
             b = self.registers[seg_b]
-            self._set_flags_arith(a, b, a - b, is_sub=True)
+            borrow_in = self._carry_in(seg_c)
+            full = a - b - borrow_in
+            self._set_flags_arith(a, b, full, is_sub=True)
             return
         if opcode == 0x0E:  # AND
             result = self.registers[seg_a] & self.registers[seg_b] & 0xFF

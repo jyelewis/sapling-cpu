@@ -194,7 +194,9 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                 ))
 
             case "CMP":
-                output_bin.append(assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+                # CMP reg1 reg2 [carry_mode]  — default carry_mode is CARRY_ZERO
+                carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
+                output_bin.append(assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode))
 
             case "AND":
                 output_bin.append(assemble_instruction(Opcode.AND, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
