@@ -35,6 +35,11 @@ SPECIAL_SP_LOW = 1
 SPECIAL_FLAGS = 2
 SPECIAL_PENDING_INTERRUPTS = 3
 
+# Carry-mode selectors, encoded in segment C of ADD/SUB (match CarryMode in assembler.py).
+CARRY_MODE_ZERO = 0      # carry-in forced to 0 — plain ADD/SUB
+CARRY_MODE_ONE = 1       # carry-in forced to 1
+CARRY_MODE_PREVIOUS = 2  # carry-in = previous value of CF — multi-byte chains
+
 MEMORY_SIZE = 65536
 INTERRUPT_VECTOR = 0x0000
 
@@ -198,6 +203,16 @@ class SaplingCpuEmu:
             raise RuntimeError(f"Unknown special register index {idx}")
 
     def _set_flags_arith(self, a: int, b: int, result_full: int, is_sub: bool) -> None:
+        """Update ZF/NF/CF/OF given the full (unbounded) arithmetic result.
+
+        For ADD (is_sub=False): result_full = a + b [+ carry_in]. CF is set if
+        result_full overflows 8 bits; OF is set when the signed result's sign
+        differs from both operands'.
+
+        For SUB (is_sub=True): result_full = a - b [- borrow_in], possibly
+        negative. CF is set when a borrow occurred (result_full < 0); OF is set
+        when a and b have opposite signs and the result's sign differs from a's.
+        """
         result = result_full & 0xFF
         self.flags &= ~(FLAG_ZF | FLAG_NF | FLAG_CF | FLAG_OF)
         if result == 0:
@@ -205,18 +220,24 @@ class SaplingCpuEmu:
         if result & 0x80:
             self.flags |= FLAG_NF
         if is_sub:
-            # CF = borrow occurred
-            if a < b:
+            if result_full < 0:
                 self.flags |= FLAG_CF
-            # Signed overflow for subtraction
             if ((a ^ b) & 0x80) and ((a ^ result) & 0x80):
                 self.flags |= FLAG_OF
         else:
             if result_full > 0xFF:
                 self.flags |= FLAG_CF
-            # Signed overflow for addition
             if (~(a ^ b) & (a ^ result)) & 0x80:
                 self.flags |= FLAG_OF
+
+    def _carry_in(self, carry_mode: int) -> int:
+        if carry_mode == CARRY_MODE_ZERO:
+            return 0
+        if carry_mode == CARRY_MODE_ONE:
+            return 1
+        if carry_mode == CARRY_MODE_PREVIOUS:
+            return 1 if self.flags & FLAG_CF else 0
+        raise RuntimeError(f"Invalid carry mode {carry_mode}")
 
     def _set_flags_logical(self, result: int) -> None:
         self.flags &= ~(FLAG_ZF | FLAG_NF | FLAG_CF | FLAG_OF)
@@ -276,17 +297,19 @@ class SaplingCpuEmu:
             if dev is not None:
                 dev.write(self.registers[seg_b])
             return
-        if opcode == 0x0B:  # ADD
+        if opcode == 0x0B:  # ADD — seg_c selects the carry-in source
             a = self.registers[seg_a]
             b = self.registers[seg_b]
-            full = a + b
+            carry_in = self._carry_in(seg_c)
+            full = a + b + carry_in
             self._set_flags_arith(a, b, full, is_sub=False)
             self.registers[seg_a] = full & 0xFF
             return
-        if opcode == 0x0C:  # SUB
+        if opcode == 0x0C:  # SUB — seg_c selects the borrow-in source
             a = self.registers[seg_a]
             b = self.registers[seg_b]
-            full = a - b
+            borrow_in = self._carry_in(seg_c)
+            full = a - b - borrow_in
             self._set_flags_arith(a, b, full, is_sub=True)
             self.registers[seg_a] = full & 0xFF
             return

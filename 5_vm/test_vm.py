@@ -173,6 +173,109 @@ def test_cmp_equal_sets_zero_no_writeback():
     assert cpu.flags & FLAG_ZF
 
 
+# --- ADD/SUB carry modes ----------------------------------------------
+
+
+def test_add_carry_one_adds_extra_one():
+    cpu = run_source("""
+        LD R0 0x10
+        LD R1 0x20
+        ADD R0 R1 CARRY_ONE
+        WFI
+    """)
+    assert cpu.registers[0] == 0x31
+
+
+def test_add_carry_one_carries_out_past_0xff():
+    # 0xFF + 0x00 + 1 = 0x100 → result 0x00, CF set, ZF set.
+    cpu = run_source("""
+        LD R0 0xFF
+        LD R1 0x00
+        ADD R0 R1 CARRY_ONE
+        WFI
+    """)
+    assert cpu.registers[0] == 0x00
+    assert cpu.flags & FLAG_CF
+    assert cpu.flags & FLAG_ZF
+
+
+def test_add_carry_previous_chains_16bit_sum():
+    # Compute 0x00FF + 0x0001 = 0x0100 across (R1:R0) + (R3:R2) into (R1:R0).
+    # Low bytes: 0xFF + 0x01 = 0x100 → R0=0x00, CF=1.
+    # High bytes with CARRY_PREVIOUS: 0x00 + 0x00 + 1 = 0x01 → R1=0x01.
+    cpu = run_source("""
+        LD R0 0xFF
+        LD R1 0x00
+        LD R2 0x01
+        LD R3 0x00
+        ADD R0 R2 CARRY_ZERO
+        ADD R1 R3 CARRY_PREVIOUS
+        WFI
+    """)
+    assert cpu.registers[0] == 0x00
+    assert cpu.registers[1] == 0x01
+
+
+def test_add_carry_previous_without_prior_carry_is_plain_add():
+    # Plain ADD on low bytes does not set CF; high-byte ADD with CARRY_PREVIOUS
+    # should therefore add no extra 1.
+    cpu = run_source("""
+        LD R0 0x01
+        LD R1 0x00
+        LD R2 0x02
+        LD R3 0x05
+        ADD R0 R2 CARRY_ZERO
+        ADD R1 R3 CARRY_PREVIOUS
+        WFI
+    """)
+    assert cpu.registers[0] == 0x03
+    assert cpu.registers[1] == 0x05
+    assert not (cpu.flags & FLAG_CF)
+
+
+def test_sub_carry_one_subtracts_extra_one():
+    # 0x10 - 0x01 - 1 = 0x0E.  No borrow.
+    cpu = run_source("""
+        LD R0 0x10
+        LD R1 0x01
+        SUB R0 R1 CARRY_ONE
+        WFI
+    """)
+    assert cpu.registers[0] == 0x0E
+    assert not (cpu.flags & FLAG_CF)
+
+
+def test_sub_carry_previous_chains_16bit_diff():
+    # (R1:R0) = 0x0100 − 0x0001 = 0x00FF.
+    # Low: 0x00 - 0x01 = -1 → R0=0xFF, CF=1 (borrow).
+    # High with CARRY_PREVIOUS: 0x01 - 0x00 - 1 = 0x00 → R1=0x00, no final borrow.
+    cpu = run_source("""
+        LD R0 0x00
+        LD R1 0x01
+        LD R2 0x01
+        LD R3 0x00
+        SUB R0 R2 CARRY_ZERO
+        SUB R1 R3 CARRY_PREVIOUS
+        WFI
+    """)
+    assert cpu.registers[0] == 0xFF
+    assert cpu.registers[1] == 0x00
+    assert not (cpu.flags & FLAG_CF)
+
+
+def test_sub_carry_one_can_force_borrow():
+    # 0x01 - 0x01 - 1 = -1 → result 0xFF, CF set, NF set.
+    cpu = run_source("""
+        LD R0 0x01
+        LD R1 0x01
+        SUB R0 R1 CARRY_ONE
+        WFI
+    """)
+    assert cpu.registers[0] == 0xFF
+    assert cpu.flags & FLAG_CF
+    assert cpu.flags & FLAG_NF
+
+
 def test_logical_and_or_xor():
     cpu = run_words([
         assemble_instruction(Opcode.LOAD_REG_IMM8, 0, immediate=0xF0),
