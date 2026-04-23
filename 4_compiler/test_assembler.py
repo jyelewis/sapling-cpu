@@ -109,6 +109,31 @@ def test_alu_accepts_commas():
     assert _decode(words[0])[:3] == (Opcode.ADD.to_int(), 1, 2)
 
 
+def test_add_sub_default_carry_mode_zero():
+    # No carry-mode specified → seg_c defaults to CARRY_ZERO (0).
+    words = asm_to_bin(["ADD R1 R2", "SUB R3 R4"])
+    assert _decode(words[0])[3] == 0
+    assert _decode(words[1])[3] == 0
+
+
+def test_add_sub_explicit_carry_modes():
+    words = asm_to_bin([
+        "ADD R1 R2 CARRY_ZERO",
+        "ADD R1 R2 CARRY_ONE",
+        "ADD R1 R2 CARRY_PREVIOUS",
+        "SUB R3 R4 CARRY_PREVIOUS",
+    ])
+    assert _decode(words[0])[3] == 0
+    assert _decode(words[1])[3] == 1
+    assert _decode(words[2])[3] == 2
+    assert _decode(words[3])[:4] == (Opcode.SUB.to_int(), 3, 4, 2)
+
+
+def test_unknown_carry_mode_raises():
+    with pytest.raises(AssemblerException):
+        asm_to_bin(["ADD R1 R2 CARRY_SOMETIMES"])
+
+
 # --- stack -----------------------------------------------------------------
 
 
@@ -122,10 +147,21 @@ def test_push_pop():
 
 
 def test_jmp_reg_pair():
-    words = asm_to_bin(["JMP R3 R4"])
+    words = asm_to_bin(["JMP [R3 R4]"])
     op, a, b, _, _ = _decode(words[0])
     assert op == Opcode.JMP_REG.to_int()
     assert (a, b) == (3, 4)
+
+
+def test_jmp_reg_pair_requires_brackets():
+    # Old whitespace-only syntax is no longer accepted.
+    with pytest.raises(AssemblerException):
+        asm_to_bin(["JMP R3 R4"])
+
+
+def test_call_reg_pair_requires_brackets():
+    with pytest.raises(AssemblerException):
+        asm_to_bin(["CALL R3 R4"])
 
 
 def test_jmp_relative_forward_label():
@@ -174,7 +210,7 @@ def test_branch_mnemonics():
 
 
 def test_call_and_ret():
-    words = asm_to_bin(["CALL R2 R3", "RET"])
+    words = asm_to_bin(["CALL [R2 R3]", "RET"])
     assert _decode(words[0])[:3] == (Opcode.CALL.to_int(), 2, 3)
     assert _decode(words[1])[0] == Opcode.RET.to_int()
 
@@ -230,7 +266,7 @@ def test_full_call_via_label():
     words = asm_to_bin([
         "LD R0 >func",
         "LD R1 <func",
-        "CALL R0 R1",
+        "CALL [R0 R1]",
         "WFI",
         "func:",
         "RET",

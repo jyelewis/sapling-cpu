@@ -10,7 +10,8 @@ def tokenize(line: str) -> list[str]:
 
     Whitespace and commas both separate tokens. A `#[...]` block is kept as a
     single token so the inner whitespace doesn't break up memory operands like
-    `#[R4 R5]` or `#[SP + 0x21]`.
+    `#[R4 R5]` or `#[SP + 0x21]`. A bare `[...]` block (used for the indirect
+    form of JMP/CALL) is also kept as a single token.
     """
     tokens: list[str] = []
     i = 0
@@ -24,6 +25,13 @@ def tokenize(line: str) -> list[str]:
             end = line.find("]", i)
             if end == -1:
                 raise AssemblerException(f"Unterminated '#[' in: {line}")
+            tokens.append(line[i:end + 1])
+            i = end + 1
+            continue
+        if c == "[":
+            end = line.find("]", i)
+            if end == -1:
+                raise AssemblerException(f"Unterminated '[' in: {line}")
             tokens.append(line[i:end + 1])
             i = end + 1
             continue
@@ -171,12 +179,19 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
             case "OUT":
                 output_bin.append(assemble_instruction(Opcode.OUT, parse_asm_device(seg_1), parse_asm_reg(seg_2)))
 
-            # TODO: seg_3 can optionally specify CARRY_ZERO (00), CARRY_ONE (01), CARRY_PREVIOUS (02) 
             case "ADD":
-                output_bin.append(assemble_instruction(Opcode.ADD, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+                # ADD dest src [carry_mode]  — default carry_mode is CARRY_ZERO
+                carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
+                output_bin.append(assemble_instruction(
+                    Opcode.ADD, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode,
+                ))
 
             case "SUB":
-                output_bin.append(assemble_instruction(Opcode.SUB, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+                # SUB dest src [carry_mode]  — default carry_mode is CARRY_ZERO
+                carry_mode = CarryMode.from_str(seg_3).to_int() if seg_3 is not None else CarryMode.CARRY_ZERO.to_int()
+                output_bin.append(assemble_instruction(
+                    Opcode.SUB, parse_asm_reg(seg_1), parse_asm_reg(seg_2), carry_mode,
+                ))
 
             case "CMP":
                 output_bin.append(assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
@@ -203,21 +218,22 @@ def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
                     # JMP to label (relative)                       JMP #label
                     offset = relative_offset_to_label(labels, seg_1[1:], instr_idx)
                     output_bin.append(assemble_instruction(Opcode.JMP_REL, immediate=to_signed_imm8(offset)))
-                elif seg_1.startswith("R"):
-                    # TODO: format should be JMP [R4 R5]
-                    # JMP reg hi . reg low                          JMP R4 R5
-                    reg_hi = parse_asm_reg(seg_1)
-                    reg_lo = parse_asm_reg(seg_2)
+                elif seg_1.startswith("["):
+                    # JMP reg hi . reg low                          JMP [R4 R5]
+                    reg_hi, reg_lo = parse_reg_pair_bracket(seg_1)
                     output_bin.append(assemble_instruction(Opcode.JMP_REG, reg_hi, reg_lo))
+                elif seg_1.startswith("R"):
+                    raise AssemblerException(
+                        f"JMP to a register pair requires bracket syntax, e.g. 'JMP [{seg_1} {seg_2}]'"
+                    )
                 else:
                     # bare signed offset                            JMP -3
                     offset = parse_asm_int(seg_1)
                     output_bin.append(assemble_instruction(Opcode.JMP_REL, immediate=to_signed_imm8(offset)))
 
             case "CALL":
-                # CALL reg hi . reg low                             CALL R4 R5
-                reg_hi = parse_asm_reg(seg_1)
-                reg_lo = parse_asm_reg(seg_2)
+                # CALL reg hi . reg low                             CALL [R4 R5]
+                reg_hi, reg_lo = parse_reg_pair_bracket(seg_1)
                 output_bin.append(assemble_instruction(Opcode.CALL, reg_hi, reg_lo))
 
             case "RET":
@@ -297,7 +313,28 @@ class Opcode(Enum):
     def to_int(self) -> int:
         return self.value
 
-# TODO: is this overcooked?
+class CarryMode(Enum):
+    """Optional segment-C modifier on ADD/SUB selecting how the carry-in is sourced."""
+    CARRY_ZERO = 0       # carry-in forced to 0 (plain ADD / SUB)
+    CARRY_ONE = 1        # carry-in forced to 1
+    CARRY_PREVIOUS = 2   # carry-in = previous value of CF (multi-byte add/sub chains)
+
+    @staticmethod
+    def from_str(carry_mode_str: str):
+        match carry_mode_str.upper():
+            case "CARRY_ZERO":
+                return CarryMode.CARRY_ZERO
+            case "CARRY_ONE":
+                return CarryMode.CARRY_ONE
+            case "CARRY_PREVIOUS":
+                return CarryMode.CARRY_PREVIOUS
+
+        raise AssemblerException(f"Unknown carry mode {carry_mode_str}")
+
+    def to_int(self) -> int:
+        return self.value
+
+
 class SpecialReg(Enum):
     SP_HIGH = 0
     SP_LOW = 1
@@ -354,6 +391,19 @@ def assemble_instruction(opcode: Opcode, segment_a: int = None, segment_b: int =
         instruction |= immediate
 
     return instruction
+
+def parse_reg_pair_bracket(bracket_str: str) -> tuple[int, int]:
+    """Parse a `[Rhi Rlo]` indirect-address operand.
+
+    Used by JMP and CALL to specify a target address spread across two registers.
+    """
+    if bracket_str is None or not (bracket_str.startswith("[") and bracket_str.endswith("]")):
+        raise AssemblerException(f"Expected [Rhi Rlo], got {bracket_str!r}")
+    parts = bracket_str.strip("[]").split()
+    if len(parts) != 2:
+        raise AssemblerException(f"Expected two registers inside [...], got {bracket_str}")
+    return parse_asm_reg(parts[0]), parse_asm_reg(parts[1])
+
 
 def parse_asm_reg(asm_reg_str: str) -> int:
     if asm_reg_str is None or not asm_reg_str.startswith("R"):
