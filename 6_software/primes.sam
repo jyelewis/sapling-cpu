@@ -1,0 +1,64 @@
+LD R0 0x03
+
+    // R4 = search limit
+    LD R4 0x18
+    
+    loop0_check_prime:
+        LD R1 2
+
+        loop1_check_divisor:
+            LD R2 R0
+            
+            loop2_subtract_divisor:
+                SUB R2 R1
+                
+                // if (reg_2_prime_check_val == 0)
+                // flags are not persisted across non alu cycles!
+                CMP R2 R1
+                BEQ #is_not_prime
+     
+                // if (reg_2_prime_check_val < 0)
+                // flags are not persisted across non alu cycles!
+                CMP R2 R1
+                BLT #try_next_divisor
+     
+                CMP R2 R1
+                JMP #loop2_subtract_divisor
+            // end loop 'loop2_sub_divisor'
+            
+            try_next_divisor:
+            // reg_1_divisor++; - try next divisor
+            LD R7 1
+            ADD R1 R7
+     
+            // bail once we've reached our test number
+            // if (reg_1_divisor == reg_0_checking_num)
+            CMP R1 R0
+            BEQ #is_prime
+            JMP #loop1_check_divisor
+        // end loop 'loop1_check_divisor'
+        
+        is_prime:
+        // print primes as we find them
+        
+        // convert to ascii & print
+        LD R6 R0
+        LD R5 0x30
+        ADD R6 R5
+        OUT DEV7 R6
+        
+        // fall through
+        
+        is_not_prime:
+        // reg_0_checking_num++; // check next prime
+        ADD R0 R7 // R7 = 1 
+     
+        // loop exit condition, have we checked up to our limit? (R4)
+        CMP R0 R4
+        BEQ #exit
+
+        JMP #loop0_check_prime
+    
+    // end loop 'loop0_check_reg0_prime'
+    exit:
+    WFI

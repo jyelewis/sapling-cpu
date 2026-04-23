@@ -1,0 +1,4 @@
+// Read one byte from DEV1, write it back to DEV2, then halt.
+IN R0 DEV1
+OUT DEV2 R0
+WFI

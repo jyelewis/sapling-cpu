@@ -1,0 +1,8 @@
+// Print "Hi\n" on the default console (IO device 7) then halt.
+LD R0 0x48       // 'H'
+OUT DEV7 R0
+LD R0 0x69       // 'i'
+OUT DEV7 R0
+LD R0 0x0A       // '\n'
+OUT DEV7 R0
+WFI

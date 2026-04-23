@@ -4,103 +4,263 @@ from enum import Enum
 class AssemblerException(Exception):
     pass
 
-def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
-    # list of 16 bit instructions
-    output_bin: list[int] = []
-    for asm_line in input_asm_lines:
-        # strip everything after a comment marker
-        asm_line = asm_line.split("//")[0]
-        
-        # remove whitespace
-        asm_line = asm_line.strip()
 
-        # skip empty lines
-        if asm_line == "":
+def tokenize(line: str) -> list[str]:
+    """Split a line into tokens.
+
+    Whitespace and commas both separate tokens. A `#[...]` block is kept as a
+    single token so the inner whitespace doesn't break up memory operands like
+    `#[R4 R5]` or `#[SP + 0x21]`.
+    """
+    tokens: list[str] = []
+    i = 0
+    n = len(line)
+    while i < n:
+        c = line[i]
+        if c.isspace() or c == ",":
+            i += 1
             continue
-            
-        # split into segments
-        asm_line_parts = asm_line.split(" ")
-        mnemonic = asm_line_parts[0].upper()
-        
-        seg_1 = asm_line_parts[1] if len(asm_line_parts) > 1 else None
-        seg_2 = asm_line_parts[2] if len(asm_line_parts) > 2 else None
-        seg_3 = asm_line_parts[3] if len(asm_line_parts) > 3 else None
-        
+        if c == "#" and i + 1 < n and line[i + 1] == "[":
+            end = line.find("]", i)
+            if end == -1:
+                raise AssemblerException(f"Unterminated '#[' in: {line}")
+            tokens.append(line[i:end + 1])
+            i = end + 1
+            continue
+        j = i
+        while j < n and not line[j].isspace() and line[j] != ",":
+            j += 1
+        tokens.append(line[i:j])
+        i = j
+    return tokens
+
+
+def asm_to_bin(input_asm_lines: list[str]) -> list[int]:
+    # --- Pass 1: strip comments/whitespace, collect labels, capture instruction lines ----
+    labels: dict[str, int] = {}
+    instr_tokens: list[list[str]] = []
+
+    for raw in input_asm_lines:
+        # strip comments
+        line = raw.split("//")[0].strip()
+        if line == "":
+            continue
+
+        # label-only line: `name:`
+        if line.endswith(":") and " " not in line[:-1] and "\t" not in line[:-1]:
+            label_name = line[:-1].strip()
+            if not label_name:
+                raise AssemblerException(f"Empty label name in: {raw!r}")
+            if label_name in labels:
+                raise AssemblerException(f"Duplicate label {label_name}")
+            labels[label_name] = len(instr_tokens)
+            continue
+
+        instr_tokens.append(tokenize(line))
+
+    # --- Pass 2: assemble -----------------------------------------------------------------
+    output_bin: list[int] = []
+    for instr_idx, tokens in enumerate(instr_tokens):
+        mnemonic = tokens[0].upper()
+        seg_1 = tokens[1] if len(tokens) > 1 else None
+        seg_2 = tokens[2] if len(tokens) > 2 else None
+        seg_3 = tokens[3] if len(tokens) > 3 else None
+
         match mnemonic:
             case "NOP":
                 output_bin.append(assemble_instruction(Opcode.NOP))
 
             case "LD":
-                # check second param to decide which op we'll need
                 dest_reg = parse_asm_reg(seg_1)
+                if seg_2 is None:
+                    raise AssemblerException(f"LD requires a source operand: {tokens}")
+
                 if seg_2.startswith("R"):
-                    # LOAD reg = reg                                LD R2 R2
+                    # LD reg = reg                                  LD R2 R2
                     src_reg = parse_asm_reg(seg_2)
                     output_bin.append(assemble_instruction(Opcode.LOAD_REG_REG, dest_reg, src_reg))
-                    
+
                 elif seg_2.startswith("#[SP"):
-                    # LOAD reg = memory[SP + offset]                LD R4 #[SP + 0x21]
+                    # LD reg = memory[SP + offset]                  LD R4 #[SP + 0x21]
                     offset = parse_asm_int(seg_2.strip("#[]").split("+")[1].strip())
-                    output_bin.append(assemble_instruction(Opcode.LOAD_REG_MEM_SP_REL, segment_a=dest_reg, immediate=to_signed_imm8(offset)))
-                    
+                    output_bin.append(assemble_instruction(
+                        Opcode.LOAD_REG_MEM_SP_REL,
+                        segment_a=dest_reg,
+                        immediate=to_signed_imm8(offset),
+                    ))
+
                 elif seg_2.startswith("#["):
-                    # LOAD reg = memory[reg hi val . reg low val]   LD R3 #[R4 R5]
-                    reg_hi_str, reg_lo_str = seg_2.strip("#[]").split(" ")
-                    reg_hi = parse_asm_reg(reg_hi_str)
-                    reg_low = parse_asm_reg(reg_lo_str)
-                    output_bin.append(assemble_instruction(Opcode.LOAD_REG_MEM_ABSOLUTE, segment_a=dest_reg, segment_b=reg_hi, segment_c=reg_low))
-                    
+                    # LD reg = memory[reg hi . reg low]             LD R3 #[R4 R5]
+                    inner = seg_2.strip("#[]").strip()
+                    parts = inner.split()
+                    if len(parts) != 2:
+                        raise AssemblerException(f"Expected two registers inside #[...], got {seg_2}")
+                    reg_hi = parse_asm_reg(parts[0])
+                    reg_low = parse_asm_reg(parts[1])
+                    output_bin.append(assemble_instruction(
+                        Opcode.LOAD_REG_MEM_ABSOLUTE,
+                        segment_a=dest_reg,
+                        segment_b=reg_hi,
+                        segment_c=reg_low,
+                    ))
+
                 elif seg_2.startswith("$"):
-                    # LOAD reg = special register                   LD R5 $FLAGS
+                    # LD reg = special register                     LD R5 $FLAGS
                     src_reg = SpecialReg.from_str(seg_2.lstrip("$")).to_int()
                     output_bin.append(assemble_instruction(Opcode.LOAD_REG_SPECIAL, dest_reg, src_reg))
-                    
+
+                elif seg_2.startswith(">"):
+                    # LD reg = high byte of label                   LD R1 >some_label
+                    imm_value = (label_byte_addr(labels, seg_2[1:]) >> 8) & 0xFF
+                    output_bin.append(assemble_instruction(Opcode.LOAD_REG_IMM8, dest_reg, immediate=imm_value))
+
+                elif seg_2.startswith("<"):
+                    # LD reg = low byte of label                    LD R2 <some_label
+                    imm_value = label_byte_addr(labels, seg_2[1:]) & 0xFF
+                    output_bin.append(assemble_instruction(Opcode.LOAD_REG_IMM8, dest_reg, immediate=imm_value))
+
                 else:
-                    # LOAD reg = imm8                               LD R1 0x21
+                    # LD reg = imm8                                 LD R1 0x21
                     imm_value = parse_asm_int(seg_2)
                     output_bin.append(assemble_instruction(Opcode.LOAD_REG_IMM8, dest_reg, immediate=imm_value))
-                    
+
             case "ST":
-                # STORE memory[reg hi val . reg low val] = reg
-                # STORE memory[SP + offset] = reg
-                # STORE special register = reg
-                
-                # check first param to decide which op we'll need
+                if seg_1 is None:
+                    raise AssemblerException("ST requires a destination operand")
+
                 if seg_1.startswith("#[SP"):
-                    # STORE memory[SP + offset] = reg               ST #[SP + 0x21] R4
+                    # ST memory[SP + offset] = reg                  ST #[SP + 0x21] R4
                     offset = parse_asm_int(seg_1.strip("#[]").split("+")[1].strip())
                     src_reg = parse_asm_reg(seg_2)
-                    output_bin.append(assemble_instruction(Opcode.STORE_MEM_SP_REL_REG, segment_a=src_reg, immediate=to_signed_imm8(offset)))
-            
+                    output_bin.append(assemble_instruction(
+                        Opcode.STORE_MEM_SP_REL_REG,
+                        segment_a=src_reg,
+                        immediate=to_signed_imm8(offset),
+                    ))
+
                 elif seg_1.startswith("#["):
-                    # STORE memory[reg hi val . reg low val] = reg  ST #[R4 R5] R3
-                    reg_hi_str, reg_lo_str = seg_1.strip("#[]").split(" ")
-                    reg_hi = parse_asm_reg(reg_hi_str)
-                    reg_low = parse_asm_reg(reg_lo_str)
-                    src_reg = parse_asm_reg(seg_3)
-                    output_bin.append(assemble_instruction(Opcode.STORE_MEM_ABSOLUTE_REG, segment_a=reg_hi, segment_b=reg_low, segment_c=src_reg))
-            
+                    # ST memory[reg hi . reg low] = reg             ST #[R4 R5] R3
+                    inner = seg_1.strip("#[]").strip()
+                    parts = inner.split()
+                    if len(parts) != 2:
+                        raise AssemblerException(f"Expected two registers inside #[...], got {seg_1}")
+                    reg_hi = parse_asm_reg(parts[0])
+                    reg_low = parse_asm_reg(parts[1])
+                    src_reg = parse_asm_reg(seg_2)
+                    output_bin.append(assemble_instruction(
+                        Opcode.STORE_MEM_ABSOLUTE_REG,
+                        segment_a=reg_hi,
+                        segment_b=reg_low,
+                        segment_c=src_reg,
+                    ))
+
                 elif seg_1.startswith("$"):
-                    # STORE special register = reg                  ST $FLAGS R5
+                    # ST special register = reg                     ST $FLAGS R5
                     dest_reg = SpecialReg.from_str(seg_1.lstrip("$")).to_int()
                     src_reg = parse_asm_reg(seg_2)
                     output_bin.append(assemble_instruction(Opcode.STORE_SPECIAL_REG, dest_reg, src_reg))
+
                 else:
-                    raise AssemblerException(f"Invalid ST instruction, expected first argument to start with #[ or $ but got {seg_1}")
-                    
+                    raise AssemblerException(
+                        f"Invalid ST instruction, expected first argument to start with #[ or $ but got {seg_1}"
+                    )
+
             case "IN":
                 output_bin.append(assemble_instruction(Opcode.IN, parse_asm_reg(seg_1), parse_asm_device(seg_2)))
+
             case "OUT":
                 output_bin.append(assemble_instruction(Opcode.OUT, parse_asm_device(seg_1), parse_asm_reg(seg_2)))
-                
-            
+
+            # TODO: seg_3 can optionally specify CARRY_ZERO (00), CARRY_ONE (01), CARRY_PREVIOUS (02) 
+            case "ADD":
+                output_bin.append(assemble_instruction(Opcode.ADD, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "SUB":
+                output_bin.append(assemble_instruction(Opcode.SUB, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "CMP":
+                output_bin.append(assemble_instruction(Opcode.CMP, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "AND":
+                output_bin.append(assemble_instruction(Opcode.AND, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "OR":
+                output_bin.append(assemble_instruction(Opcode.OR, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "XOR":
+                output_bin.append(assemble_instruction(Opcode.XOR, parse_asm_reg(seg_1), parse_asm_reg(seg_2)))
+
+            case "SHL":
+                output_bin.append(assemble_instruction(Opcode.SHL, parse_asm_reg(seg_1)))
+
+            case "SHR":
+                output_bin.append(assemble_instruction(Opcode.SHR, parse_asm_reg(seg_1)))
+
+            case "JMP":
+                if seg_1 is None:
+                    raise AssemblerException("JMP requires an operand")
+                if seg_1.startswith("#"):
+                    # JMP to label (relative)                       JMP #label
+                    offset = relative_offset_to_label(labels, seg_1[1:], instr_idx)
+                    output_bin.append(assemble_instruction(Opcode.JMP_REL, immediate=to_signed_imm8(offset)))
+                elif seg_1.startswith("R"):
+                    # TODO: format should be JMP [R4 R5]
+                    # JMP reg hi . reg low                          JMP R4 R5
+                    reg_hi = parse_asm_reg(seg_1)
+                    reg_lo = parse_asm_reg(seg_2)
+                    output_bin.append(assemble_instruction(Opcode.JMP_REG, reg_hi, reg_lo))
+                else:
+                    # bare signed offset                            JMP -3
+                    offset = parse_asm_int(seg_1)
+                    output_bin.append(assemble_instruction(Opcode.JMP_REL, immediate=to_signed_imm8(offset)))
+
+            case "CALL":
+                # CALL reg hi . reg low                             CALL R4 R5
+                reg_hi = parse_asm_reg(seg_1)
+                reg_lo = parse_asm_reg(seg_2)
+                output_bin.append(assemble_instruction(Opcode.CALL, reg_hi, reg_lo))
+
+            case "RET":
+                output_bin.append(assemble_instruction(Opcode.RET))
+
+            case "BEQ":
+                output_bin.append(assemble_instruction(
+                    Opcode.BEQ,
+                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                ))
+
+            case "BLT":
+                output_bin.append(assemble_instruction(
+                    Opcode.BLT,
+                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                ))
+
+            case "BOV":
+                output_bin.append(assemble_instruction(
+                    Opcode.BOV,
+                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                ))
+
+            case "BCS":
+                output_bin.append(assemble_instruction(
+                    Opcode.BCS,
+                    immediate=to_signed_imm8(resolve_branch_offset(labels, seg_1, instr_idx)),
+                ))
+
+            case "PUSH":
+                output_bin.append(assemble_instruction(Opcode.PUSH, parse_asm_reg(seg_1)))
+
+            case "POP":
+                output_bin.append(assemble_instruction(Opcode.POP, parse_asm_reg(seg_1)))
+
             case "WFI":
                 output_bin.append(assemble_instruction(Opcode.WFI))
-                    
+
             case _:
                 raise AssemblerException(f"Unknown mnemonic {mnemonic}")
 
     return output_bin
+
 
 class Opcode(Enum):
     NOP = 0x00
@@ -136,14 +296,14 @@ class Opcode(Enum):
 
     def to_int(self) -> int:
         return self.value
-    
+
 # TODO: is this overcooked?
 class SpecialReg(Enum):
     SP_HIGH = 0
     SP_LOW = 1
     FLAGS = 2
     PENDING_INTERRUPTS = 3
-    
+
     @staticmethod
     def from_str(special_reg_str: str):
         match special_reg_str.upper():
@@ -155,9 +315,9 @@ class SpecialReg(Enum):
                 return SpecialReg.FLAGS
             case "PENDING_INTERRUPTS":
                 return SpecialReg.PENDING_INTERRUPTS
-        
+
         raise AssemblerException(f"Unknown special register {special_reg_str}")
-    
+
     def to_int(self) -> int:
         return self.value
 
@@ -177,41 +337,41 @@ def assemble_instruction(opcode: Opcode, segment_a: int = None, segment_b: int =
     assert segment_b is None or segment_b == segment_b & 0b111, "Segment b does not fit in 3 bits"
     assert segment_c is None or segment_c == segment_c & 0b111, "Segment c does not fit in 3 bits"
     assert immediate is None or immediate == immediate & 0b11111111, "Immediate does not fit in 8 bits"
-    
+
     instruction = 0
     instruction |= opcode.to_int() << 11
-    
+
     if segment_a is not None:
         instruction |= segment_a << 8
-    
+
     if segment_b is not None:
         instruction |= segment_b << 5
-        
+
     if segment_c is not None:
         instruction |= segment_c << 2
-        
+
     if immediate is not None:
         instruction |= immediate
-    
+
     return instruction
 
 def parse_asm_reg(asm_reg_str: str) -> int:
-    if not asm_reg_str.startswith("R"):
-        raise "Expected register to start with R"
-    
-    reg_number = int(asm_reg_str.strip("R"))
-    if reg_number < 0 or reg_number > 8:
-        raise "Register number out of bounds (0-8)"
-    
+    if asm_reg_str is None or not asm_reg_str.startswith("R"):
+        raise AssemblerException(f"Expected register to start with R, got {asm_reg_str!r}")
+
+    reg_number = int(asm_reg_str[1:])
+    if reg_number < 0 or reg_number > 7:
+        raise AssemblerException(f"Register number out of bounds (0-7): {asm_reg_str}")
+
     return reg_number
 
 def parse_asm_device(asm_io_str: str) -> int:
-    if not asm_io_str.startswith("DEV"):
-        raise "Expected IO device to start with DEV"
+    if asm_io_str is None or not asm_io_str.startswith("DEV"):
+        raise AssemblerException(f"Expected IO device to start with DEV, got {asm_io_str!r}")
 
-    device_number = int(asm_io_str.strip("DEV"))
-    if device_number < 0 or device_number > 8:
-        raise "IO device number out of bounds (0-8)"
+    device_number = int(asm_io_str[3:])
+    if device_number < 0 or device_number > 7:
+        raise AssemblerException(f"IO device number out of bounds (0-7): {asm_io_str}")
 
     return device_number
 
@@ -224,32 +384,45 @@ def to_signed_imm8(value: int) -> int:
 
     # python negative 'infinite' 1's in the high bits, truncate to 8 bits
     return value & 0xFF
-    
-    
 
-# if main
 
-# Add R1 = 100 + 5
-# Output R1
-# result = asm_to_bin("""
-# LD R2 100
-# LD R3 5
-# LD R1 R2
-# LD R1 #[R2 R3]
-# LD R1 #[SP + R3]
-# // ADD R1 R3 CARRY_NONE
-# // OUT 0d1 R1
-# """)
+def label_byte_addr(labels: dict[str, int], name: str) -> int:
+    if name not in labels:
+        raise AssemblerException(f"Unknown label {name!r}")
+    # each instruction occupies 2 bytes
+    return labels[name] * 2
 
-# print("result")
-# print(result)
+
+def relative_offset_to_label(labels: dict[str, int], name: str, current_instr_idx: int) -> int:
+    """Compute the signed offset (in instructions) from the instruction after the
+    current one to the target label — this matches how the VM applies the offset
+    (PC has already advanced past the branch when the offset is added).
+    """
+    if name not in labels:
+        raise AssemblerException(f"Unknown label {name!r}")
+    offset = labels[name] - current_instr_idx - 1
+    if offset < -128 or offset > 127:
+        raise AssemblerException(
+            f"Branch to {name!r} out of range: offset {offset} does not fit in signed imm8"
+        )
+    return offset
+
+
+def resolve_branch_offset(labels: dict[str, int], operand: str, current_instr_idx: int) -> int:
+    """Parse a branch operand, which can be `#label` or a bare signed integer."""
+    if operand is None:
+        raise AssemblerException("Branch instruction requires a target")
+    if operand.startswith("#"):
+        return relative_offset_to_label(labels, operand[1:], current_instr_idx)
+    return parse_asm_int(operand)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog='Sapling Assembler',
         description='Assembles sapling ASM text into binary'
     )
-    
+
     parser.add_argument('filename')
     parser.add_argument('-f', '--format', choices=['bin', 'hex', 'debug'], default='bin')
     parser.add_argument('-o', '--output', help='Output file path. If omitted, writes to stdout.')
@@ -298,4 +471,4 @@ if __name__ == "__main__":
                 f.write(output_bytes)
         else:
             print(output_bytes)
-    
+

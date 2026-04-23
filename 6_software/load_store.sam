@@ -1,0 +1,5 @@
+// Exercise LD immediate, LD reg-reg, and the special-register path.
+LD R0 0xAB
+LD R1 R0
+LD R2 $FLAGS
+WFI
