@@ -10,8 +10,8 @@ module sapling_cpu_core (
     output logic memory_write_enable,
     input logic memory_ready
 );
-  // while we test, always read memory at address 0xABCD and ignore writes
-  assign memory_address = 16'hABCD;
+  // while we test, always read memory at a fixed address and ignore writes
+  assign memory_address = 16'h0000;
   assign memory_write_data = 16'h0000;
   assign memory_write_enable = 1'b0;
 

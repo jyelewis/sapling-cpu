@@ -36,15 +36,16 @@ def test_testbench():
 
     from pkg4_compiler.assembler import asm_to_bin
 
-    assembled_words = asm_to_bin(["NOP", "NOP", "NOP"])
-    # TODO: would expect the assembler module to do this...
+    assembled_words = asm_to_bin(["LD R1 R2", "NOP", "NOP"])
+    initial_memory_hex = "\n".join([f"{word:04x}" for word in assembled_words])
+    
     initial_memory = bytearray()
     for word in assembled_words:
         initial_memory.extend(word.to_bytes(2, byteorder="big"))
-    fd, tmp_path = tempfile.mkstemp(suffix=".bin")
+    fd, tmp_path = tempfile.mkstemp(suffix=".hex")
     os.close(fd)
     bin_file = Path(tmp_path)
-    bin_file.write_bytes(initial_memory)
+    bin_file.write_text(initial_memory_hex)
 
     runner = get_runner("icarus")
     runner.build(
@@ -53,7 +54,7 @@ def test_testbench():
         hdl_toplevel="testbench",
         build_dir=str(build_dir),
         build_args=["-g2012", "-DCOCOTB_SIM=1"],
-        defines={"TB_MEMORY_CONTROLLER_INIT_DATA": str(bin_file)},
+        defines={"TB_MEMORY_CONTROLLER_INIT_DATA": str(tmp_path)},
         timescale=("1ns", "1ps"),
         waves=True,
     )

@@ -11,24 +11,7 @@ module testbench(
     logic memory_ready;
     
     
-      sapling_cpu_core cpu (
-        .clk(clk),
-        .reset(reset),
-//        .memory_address(),
-//        .memory_read_data(16'h0000),
-//        .memory_write_data(),
-//        .memory_write_enable(),
-//        .memory_ready(1'b1)
-
-        .* 
-      );
+      sapling_cpu_core cpu (.*);
       
-      tb_memory_controller memory_controller (
-//        .memory_address(cpu.memory_address),
-//        .memory_read_data(cpu.memory_read_data),
-//        .memory_write_data(cpu.memory_write_data),
-//        .memory_write_enable(cpu.memory_write_enable),
-//        .memory_ready(cpu.memory_ready)
-        .* 
-      );
+      tb_memory_controller memory_controller (.*);
 endmodule
