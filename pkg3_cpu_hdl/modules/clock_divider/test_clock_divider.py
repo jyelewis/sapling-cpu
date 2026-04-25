@@ -47,7 +47,7 @@ async def test_output_clock(dut):
 def test_clock_divider():
     from cocotb_tools.runner import get_runner
 
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[3]
     build_dir = repo_root / "build" / "cocotb" / "clock_divider"
 
     runner = get_runner("icarus")
@@ -61,8 +61,7 @@ def test_clock_divider():
     )
     runner.test(
         hdl_toplevel="clock_divider",
-        test_module="pkg3_cpu_hdl.modules.test_clock_divider",
+        test_module="pkg3_cpu_hdl.modules.clock_divider.test_clock_divider",
         build_dir=str(build_dir),
-        extra_env={"PYTHONPATH": str(repo_root)},
         waves=True,
     )

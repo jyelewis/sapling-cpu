@@ -15,7 +15,7 @@ BOARD       ?= icesugar
 HDL_BUILD   := $(BUILD_DIR)/$(HDL_DIR)/$(BOARD)
 
 BOARD_SRCS  := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/boards/$(BOARD)/*.sv))
-MODULE_SRCS := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/modules/*.sv))
+MODULE_SRCS := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/modules/**/*.sv))
 SV_SRCS     := $(BOARD_SRCS) $(MODULE_SRCS)
 
 # Pull in per-board config (BOARD_CHIP, BOARD_PACKAGE, BOARD_FLASH_CMD, BOARD_PCF_NAME)
