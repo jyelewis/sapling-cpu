@@ -1,4 +1,8 @@
+
 module tb_memory_controller(
+    input logic clk,
+    input logic reset,
+
     input logic [15:0] memory_address,
     output logic [7:0] memory_read_data,
     output logic [7:0] memory_read_data_peak,
@@ -36,17 +40,21 @@ module tb_memory_controller(
         end
         $fclose(fd);
     end
-
-    always_comb begin
-        if (memory_write_enable) begin
-            memory[memory_address*8 +: 8] = memory_write_data;
-            memory_read_data      = '0;
-            memory_read_data_peak = '0;
-            memory_ready          = 1'b1;
+    
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            memory_ready <= 1'b0;
         end else begin
-            memory_read_data      = memory[memory_address*8 +: 8];
-            memory_read_data_peak = memory[peak_address*8   +: 8];
-            memory_ready          = 1'b1;
+           if (memory_write_enable) begin
+                memory[memory_address*8 +: 8] <= memory_write_data;
+                memory_read_data      <= '0;
+                memory_read_data_peak <= '0;
+                memory_ready          <= 1'b1;
+            end else begin
+                memory_read_data      <= memory[memory_address*8 +: 8];
+                memory_read_data_peak <= memory[peak_address*8   +: 8];
+                memory_ready          <= 1'b1;
+            end
         end
     end
 endmodule
