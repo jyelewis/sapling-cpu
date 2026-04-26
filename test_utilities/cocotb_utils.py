@@ -7,30 +7,29 @@ from cocotb_tools.runner import get_runner
 
 
 def setup_cocotb_tests(
-        caller_globals,
-        sources: list[Path] | None = None,
-        hdl_toplevel: str | None = None,
-        auto_clk: bool = False,
-        auto_reset: bool = False
+    caller_globals,
+    sources: list[Path] | None = None,
+    hdl_toplevel: str | None = None,
+    auto_clk: bool = False,
+    auto_reset: bool = False,
 ):
-    test_module = caller_globals["__name__"] # "test_program_counter"
+    test_module = caller_globals["__name__"]  # "test_program_counter"
     module_file = Path(caller_globals["__file__"])
 
     if sources is None:
-        sources = module_file.parent.glob("*.sv")
+        sources = list(module_file.parent.glob("*.sv"))
 
     if hdl_toplevel is None:
         hdl_toplevel = test_module.removeprefix("test_")
 
-
     test_functions = [
-        (name, fn) for name, fn in caller_globals.items()
+        (name, fn)
+        for name, fn in caller_globals.items()
         if inspect.isfunction(fn) and fn.__module__ == test_module and name.startswith("test_")
     ]
 
-    # TODO: fix late binding bugs (lint to check)
-    for test_name, fn in test_functions:
-        # Inject a pytest wrapper that builds + runs only this case
+    def make_wrappers(test_name: str, fn):
+        # the code pytest will run (which then triggers cocotb to take over)
         def pytest_wrapper_fn():
             repo_root = Path(__file__).resolve().parents[1]
             build_dir = repo_root / "build" / "cocotb" / test_module
@@ -52,9 +51,10 @@ def setup_cocotb_tests(
                 testcase=f"cocotb_{test_name}",
             )
 
+        # the code cocotb will run
         @cocotb.test(name=f"cocotb_{test_name}")
         async def cocotb_wrapper_fn(dut):
-            from cocotb._gpi_triggers import Timer
+            from cocotb.triggers import Timer
 
             if auto_clk:
                 # start the clock and do not block, allow it to run in the background
@@ -72,8 +72,12 @@ def setup_cocotb_tests(
                     await Timer(1, unit="ns")
                     dut.reset.value = 0
 
-
             await fn(dut)
+
+        return pytest_wrapper_fn, cocotb_wrapper_fn
+
+    for test_name, fn in test_functions:
+        pytest_wrapper_fn, cocotb_wrapper_fn = make_wrappers(test_name, fn)
 
         # the original test function, that cocotb will run after building
         caller_globals[f"cocotb_{test_name}"] = cocotb_wrapper_fn
@@ -81,7 +85,9 @@ def setup_cocotb_tests(
         # the pytest function, which builds & configures before calling cocotb to execute
         caller_globals[test_name] = pytest_wrapper_fn
 
+
 async def tick(dut):
-    from cocotb._gpi_triggers import FallingEdge, RisingEdge
+    from cocotb.triggers import FallingEdge, RisingEdge
+
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)

@@ -7,9 +7,9 @@ module program_counter (
 );
   always_ff @(posedge clk) begin
     if (reset) begin
-      current_pc <= 16'h0000; // Reset to address 0
+      current_pc <= 16'h0000;  // Reset to address 0
     end else begin
-      current_pc <= next_pc; // Update PC to next value
+      current_pc <= next_pc;  // Update PC to next value
     end
-  end  
+  end
 endmodule

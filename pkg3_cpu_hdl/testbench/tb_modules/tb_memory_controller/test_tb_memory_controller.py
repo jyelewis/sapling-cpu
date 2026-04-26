@@ -21,6 +21,7 @@ async def test_8bit_reads_with_peak(dut):
     assert dut.memory_read_data.value == 0xAC
     assert dut.memory_read_data_peak.value == 0xEE
 
+
 @cocotb.test()
 async def test_write(dut):
     dut.memory_address.value = 0x0015
@@ -32,7 +33,6 @@ async def test_write(dut):
     await Timer(1, unit="ns")
 
     assert dut.memory_read_data.value == 0x42
-
 
 
 # TODO: write some nicer cocotb test utils
