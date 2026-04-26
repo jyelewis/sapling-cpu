@@ -1,5 +1,7 @@
 
-module sapling_cpu_core (
+module sapling_cpu_core
+  import types::*;
+(
     input logic clk,
     input logic reset,
 
@@ -11,9 +13,35 @@ module sapling_cpu_core (
     output logic memory_write_enable,
     input logic memory_ready
 );
-  // while we test, always read memory at a fixed address and ignore writes
-  assign memory_address = 16'h0000;
-  assign memory_write_data = 16'h0000;
-  assign memory_write_enable = 1'b0;
+  // program counter
+  logic [15:0] current_pc;
+  logic [15:0] ctrl_next_pc;
 
+  program_counter program_counter (.*);
+
+  // TODO: this isn't in the core!
+  // memory controller
+  //  memory_controller memory_controller (.*);
+
+  // instruction fetch
+  logic ctrl_load_instruction;
+  logic [15:0] instruction;
+  instruction_register instruction_register (.*);
+
+  // instruction decode
+  opcode_t instruction_opcode;
+  logic [3:0] instruction_segment_a;
+  logic [3:0] instruction_segment_b;
+  logic [3:0] instruction_segment_c;
+  logic [7:0] instruction_imm8;
+  instruction_decoder instruction_decoder (.*);
+
+  // instruction execute
+  instruction_executor instruction_executor (.*);
+
+  // PLACEHOLDER: always load mem from current PC
+  always_comb begin
+    memory_address = current_pc;
+    memory_write_enable = 0;
+  end
 endmodule

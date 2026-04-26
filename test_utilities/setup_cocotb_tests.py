@@ -3,31 +3,10 @@ from pathlib import Path
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import FallingEdge, RisingEdge, Timer
 from cocotb_tools.runner import get_runner
 
-
-def verilog_define(constant_name: str, value: str):
-    """
-    decorator to specify build time defines for a test
-
-    example:
-    @verilog_define("TB_MEMORY_CONTROLLER_INIT_DATA", "/Users/jyelewis/dev-personal/sapling-cpu/pkg3_cpu_hdl/testbench/tb_modules/tb_memory_controller/test_data.hex")
-    def my_test(dut):
-        ...
-    """
-
-    def decorator(fn):
-        if not hasattr(fn, "_verilog_defines"):
-            fn._verilog_defines = {}
-
-        if constant_name in fn._verilog_defines:
-            raise Exception(f"verilog_define: constant {constant_name} already defined for function {fn.__name__}")
-
-        fn._verilog_defines[constant_name] = value
-        return fn
-
-    return decorator
+from test_utilities.clock import tick
+from test_utilities.repo_root import repo_root
 
 
 def setup_cocotb_tests(
@@ -44,7 +23,6 @@ def setup_cocotb_tests(
     test_module = caller_globals["__name__"]  # e.g. "test_program_counter"
     module_file = Path(caller_globals["__file__"])
 
-    repo_root = Path(__file__).resolve().parents[1]
     types_sv = repo_root / "pkg3_cpu_hdl" / "types.sv"
 
     if sources is None:
@@ -132,12 +110,3 @@ def setup_cocotb_tests(
 
         # replace the original test_ function our wrapped version
         caller_globals[test_name] = pytest_wrapper_fn
-
-
-async def tick(dut):
-    await RisingEdge(dut.clk)
-    await FallingEdge(dut.clk)
-
-
-async def comb_tick():
-    await Timer(1, unit="ns")

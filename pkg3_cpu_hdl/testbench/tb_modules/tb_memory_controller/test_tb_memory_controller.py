@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from test_utilities.cocotb_utils import setup_cocotb_tests, tick
+from test_utilities import setup_cocotb_tests, tick
 
 
 async def test_8bit_reads_with_peak(dut):

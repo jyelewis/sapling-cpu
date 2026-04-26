@@ -1,4 +1,4 @@
-from test_utilities.cocotb_utils import setup_cocotb_tests, tick
+from test_utilities import setup_cocotb_tests, tick
 
 
 async def test_instruction_register(dut):

@@ -1,4 +1,4 @@
-from test_utilities.cocotb_utils import comb_tick, setup_cocotb_tests
+from test_utilities import comb_tick, setup_cocotb_tests
 
 
 async def test_instruction_decoder(dut):
