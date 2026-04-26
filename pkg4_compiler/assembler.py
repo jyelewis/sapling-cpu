@@ -14,11 +14,9 @@ def expand_includes(
     _seen: set[str] | None = None,
 ) -> list[str]:
     """Recursively expand `#include "path"` directives.
-
-    Paths are resolved relative to the including file's directory. Each file is
-    included at most once per compilation — a second include of the same file
-    is silently skipped, which lets a .sam file depend on shared helpers without
-    worrying about whether they were already pulled in transitively.
+    Paths are resolved relative to the including file's directory.
+    Each file is included at most once per compilation
+    TODO: not sold on this, its not standard and we may want to use includes for inlining
     """
     if _seen is None:
         _seen = set()
@@ -56,13 +54,6 @@ def expand_includes(
 
 
 def tokenize(line: str) -> list[str]:
-    """Split a line into tokens.
-
-    Whitespace and commas both separate tokens. A `#[...]` block is kept as a
-    single token so the inner whitespace doesn't break up memory operands like
-    `#[R4 R5]` or `#[SP + 0x21]`. A bare `[...]` block (used for the indirect
-    form of JMP/CALL) is also kept as a single token.
-    """
     tokens: list[str] = []
     i = 0
     n = len(line)

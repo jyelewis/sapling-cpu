@@ -48,6 +48,7 @@ def asm(code: str):
     # into the test bench memory controller, before execution starts
     return verilog_define("TB_MEMORY_CONTROLLER_INIT_DATA", str(tmp_path))
 
+
 def show_waveform(show_waveform: bool = True):
     def decorator(fn):
         fn.show_waveform = show_waveform

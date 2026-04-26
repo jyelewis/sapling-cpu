@@ -19,6 +19,7 @@ def _open_surfer_if_not_running(waveform_path: Path) -> None:
     # launch surfer detached so it outlives the pytest process
     subprocess.Popen(
         ["surfer", str(waveform_path)],
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         start_new_session=True,
