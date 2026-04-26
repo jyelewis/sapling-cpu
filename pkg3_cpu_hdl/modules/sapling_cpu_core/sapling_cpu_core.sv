@@ -41,7 +41,9 @@ module sapling_cpu_core
 
   // PLACEHOLDER: always load mem from current PC
   always_comb begin
-    memory_address = current_pc;
+  // TODO: think more about this, we need to pre-emptively load the next instruction while processing
+//    memory_address = current_pc;
+    memory_address = ctrl_next_pc;
     memory_write_data = 8'h00;
     memory_write_enable = 0;
   end
