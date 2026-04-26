@@ -21,7 +21,7 @@ module tb_memory_controller(
 
     // $readmemh wants an unpacked array, so we read the file manually.
     // claude wrote this, was sick of waiting for build times - this fixes the unpacked array performance issue.
-    initial begin
+    initial begin : tb_memory_controller_init
         int fd, status, byte_idx;
         logic [7:0] byte_val;
         fd = $fopen(`TB_MEMORY_CONTROLLER_INIT_DATA, "r");

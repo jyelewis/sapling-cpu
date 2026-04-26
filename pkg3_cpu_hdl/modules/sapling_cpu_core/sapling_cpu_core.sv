@@ -42,6 +42,7 @@ module sapling_cpu_core
   // PLACEHOLDER: always load mem from current PC
   always_comb begin
     memory_address = current_pc;
+    memory_write_data = 8'h00;
     memory_write_enable = 0;
   end
 endmodule
