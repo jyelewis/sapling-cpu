@@ -33,7 +33,7 @@ module instruction_executor
           $display("Decoded instruction: NOP");
           // our PC increments via 2 registers, causing all instructions to take 2 clock cycles. Not ideal
           //ctrl_next_pc <= current_pc + 16'h0002;  // move to the next instruction
-          
+
           // TODO: think more about this, we're always trying to stay ahead
           ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
           ctrl_load_instruction <= 1;

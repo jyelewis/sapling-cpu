@@ -19,9 +19,17 @@ module sapling_cpu_core
 
   program_counter program_counter (.*);
 
-  // TODO: this isn't in the core!
-  // memory controller
-  //  memory_controller memory_controller (.*);
+  // register bank
+  logic [3:0] ctrl_read_register_a;
+  logic [3:0] ctrl_read_register_b;
+
+  logic [3:0] ctrl_write_register;
+  logic [8:0] register_write_data;
+  logic ctrl_register_write_enable;
+
+  logic [8:0] register_read_data_a;
+  logic [8:0] register_read_data_b;
+  register_bank register_bank (.*);
 
   // instruction fetch
   logic ctrl_load_instruction;
@@ -41,8 +49,8 @@ module sapling_cpu_core
 
   // PLACEHOLDER: always load mem from current PC
   always_comb begin
-  // TODO: think more about this, we need to pre-emptively load the next instruction while processing
-//    memory_address = current_pc;
+    // TODO: think more about this, we need to pre-emptively load the next instruction while processing
+    //    memory_address = current_pc;
     memory_address = ctrl_next_pc;
     memory_write_data = 8'h00;
     memory_write_enable = 0;
