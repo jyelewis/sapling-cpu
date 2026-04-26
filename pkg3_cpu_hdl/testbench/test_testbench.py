@@ -56,11 +56,11 @@ def test_testbench():
         build_args=["-g2012", "-DCOCOTB_SIM=1"],
         defines={"TB_MEMORY_CONTROLLER_INIT_DATA": str(tmp_path)},
         timescale=("1ns", "1ps"),
-        waves=True,
+        waves=False,
     )
     runner.test(
         hdl_toplevel="testbench",
         test_module="pkg3_cpu_hdl.testbench.test_testbench",
         build_dir=str(build_dir),
-        waves=True,
+        waves=False,
     )
