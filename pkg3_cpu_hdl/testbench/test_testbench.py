@@ -26,9 +26,10 @@ def test_testbench():
     repo_root = Path(__file__).resolve().parents[2]
     build_dir = repo_root / "build" / "cocotb" / "testbench"
 
+    types_path = repo_root / "pkg3_cpu_hdl" / "types.sv"
     modules_path = repo_root / "pkg3_cpu_hdl" / "modules"
     tb_path = repo_root / "pkg3_cpu_hdl" / "testbench"
-    sources = list(modules_path.rglob("*.sv")) + list(tb_path.rglob("*.sv"))
+    sources = [types_path] + list(modules_path.rglob("*.sv")) + list(tb_path.rglob("*.sv"))
 
     # assembly & write init memory
     import os

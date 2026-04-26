@@ -1,7 +1,7 @@
 
 
 module instruction_decoder
-  import sapling_opcodes::*;
+  import types::*;
 (
     input logic [15:0] instruction,
 

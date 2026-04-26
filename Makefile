@@ -14,9 +14,11 @@ HDL_DIR     := pkg3_cpu_hdl
 BOARD       ?= icesugar
 HDL_BUILD   := $(BUILD_DIR)/$(HDL_DIR)/$(BOARD)
 
+TYPES_SRCS  := $(HDL_DIR)/types.sv
 BOARD_SRCS  := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/boards/$(BOARD)/*.sv) $(wildcard $(HDL_DIR)/boards/$(BOARD)/**/*.sv))
 MODULE_SRCS := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/modules/**/*.sv))
-SV_SRCS     := $(BOARD_SRCS) $(MODULE_SRCS)
+# types.sv must come first so packages are available to every module that imports them
+SV_SRCS     := $(TYPES_SRCS) $(BOARD_SRCS) $(MODULE_SRCS)
 
 # Pull in per-board config (BOARD_CHIP, BOARD_PACKAGE, BOARD_FLASH_CMD, BOARD_PCF_NAME)
 -include $(HDL_DIR)/boards/$(BOARD)/board.mk

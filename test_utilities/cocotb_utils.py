@@ -44,9 +44,15 @@ def setup_cocotb_tests(
     test_module = caller_globals["__name__"]  # e.g. "test_program_counter"
     module_file = Path(caller_globals["__file__"])
 
+    repo_root = Path(__file__).resolve().parents[1]
+    types_sv = repo_root / "pkg3_cpu_hdl" / "types.sv"
+
     if sources is None:
         # default to loading all sources in the test directory
         sources = sorted(module_file.parent.glob("*.sv"))
+
+    # types.sv must come first so packages are available to every module that imports them
+    sources = [types_sv, *sources]
 
     if hdl_toplevel is None:
         # default to loading the module with the same name as the test file, minus the "test_" prefix

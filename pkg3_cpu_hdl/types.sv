@@ -1,6 +1,4 @@
-
-// TODO: put this into a types package that gets loaded first
-package sapling_opcodes;
+package types;
   typedef enum logic [4:0] {
     NOP = 5'h00,
     LOAD_REG_IMM8 = 5'h01,

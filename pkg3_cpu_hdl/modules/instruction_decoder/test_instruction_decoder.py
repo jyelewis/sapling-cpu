@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from test_utilities.cocotb_utils import comb_tick, setup_cocotb_tests
 
 
@@ -50,10 +48,4 @@ async def test_instruction_decoder(dut):
     assert dut.instruction_segment_c.value == 0
 
 
-# TODO: types need to be loaded first everywhere
-setup_cocotb_tests(
-    globals(),
-    auto_clk=False,
-    auto_reset=False,
-    sources=[Path(__file__).parent / "sapling_opcodes.sv", Path(__file__).parent / "instruction_decoder.sv"],
-)
+setup_cocotb_tests(globals(), auto_clk=False, auto_reset=False)
