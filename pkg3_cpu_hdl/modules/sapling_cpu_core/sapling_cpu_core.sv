@@ -5,8 +5,9 @@ module sapling_cpu_core (
 
     // memory controller
     output logic [15:0] memory_address,
-    input logic [15:0] memory_read_data,
-    output logic [15:0] memory_write_data,
+    input logic [7:0] memory_read_data,
+    input logic [7:0] memory_read_data_peak,
+    output logic [7:0] memory_write_data,
     output logic memory_write_enable,
     input logic memory_ready
 );
