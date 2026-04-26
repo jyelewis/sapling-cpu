@@ -47,3 +47,10 @@ def asm(code: str):
     # when the test case runs, it'll load our program from the hex file we just wrote
     # into the test bench memory controller, before execution starts
     return verilog_define("TB_MEMORY_CONTROLLER_INIT_DATA", str(tmp_path))
+
+def show_waveform(show_waveform: bool = True):
+    def decorator(fn):
+        fn.show_waveform = show_waveform
+        return fn
+
+    return decorator

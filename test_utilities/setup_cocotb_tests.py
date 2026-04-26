@@ -1,4 +1,5 @@
 import inspect
+import subprocess
 from pathlib import Path
 
 import cocotb
@@ -7,6 +8,21 @@ from cocotb_tools.runner import get_runner
 
 from test_utilities.clock import tick
 from test_utilities.repo_root import repo_root
+
+
+def _open_surfer_if_not_running(waveform_path: Path) -> None:
+    # check if surfer is already running; if so, skip launching a new instance
+    result = subprocess.run(["pgrep", "-x", "surfer"], capture_output=True)
+    if result.returncode == 0:
+        return
+
+    # launch surfer detached so it outlives the pytest process
+    subprocess.Popen(
+        ["surfer", str(waveform_path)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
 
 
 def setup_cocotb_tests(
@@ -23,14 +39,11 @@ def setup_cocotb_tests(
     test_module = caller_globals["__name__"]  # e.g. "test_program_counter"
     module_file = Path(caller_globals["__file__"])
 
-    types_sv = repo_root / "pkg3_cpu_hdl" / "types.sv"
-
     if sources is None:
-        # default to loading all sources in the test directory
-        sources = sorted(module_file.parent.glob("*.sv"))
-
-    # types.sv must come first so packages are available to every module that imports them
-    sources = [types_sv, *sources]
+        # default to loading all sources in the test directory, plus types.sv
+        types_sv = repo_root / "pkg3_cpu_hdl" / "types.sv"
+        # types.sv must come first so packages are available to every module that imports them
+        sources = [types_sv, *sorted(module_file.parent.glob("*.sv"))]
 
     if hdl_toplevel is None:
         # default to loading the module with the same name as the test file, minus the "test_" prefix
@@ -52,6 +65,8 @@ def setup_cocotb_tests(
             else default_verilog_defines
         )
 
+        show_waveform = getattr(fn, "show_waveform", False)
+
         # the code pytest will run (which then triggers cocotb to take over)
         def pytest_wrapper_fn():
             repo_root = Path(__file__).resolve().parents[1]
@@ -64,8 +79,7 @@ def setup_cocotb_tests(
                 build_dir=str(build_dir),
                 build_args=["-g2012", "-DCOCOTB_SIM=1"],
                 timescale=("1ns", "1ps"),
-                # TODO: support waves
-                waves=False,
+                waves=show_waveform,
                 # changing 'defines' does not trigger a re-compile, force a new build every time
                 always=True,
                 defines=defines,
@@ -74,11 +88,14 @@ def setup_cocotb_tests(
                 hdl_toplevel=hdl_toplevel,
                 test_module=test_module,
                 build_dir=str(build_dir),
-                waves=False,
+                waves=show_waveform,
                 # TODO: test filter is new, but not working
                 testcase=f"cocotb_{test_name}",
                 # test_filter=f"^cocotb_{test_name}$",
             )
+
+            if show_waveform:
+                _open_surfer_if_not_running(build_dir / f"{hdl_toplevel}.fst")
 
         pytest_wrapper_fn.__name__ = test_name
         pytest_wrapper_fn.__qualname__ = test_name

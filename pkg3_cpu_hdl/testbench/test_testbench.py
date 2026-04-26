@@ -1,6 +1,7 @@
 from cocotb.triggers import ClockCycles
 
-from test_utilities import asm, repo_root, setup_cocotb_tests
+from test_utilities import asm, repo_root, setup_cocotb_tests, show_waveform
+
 
 #
 # async def reset_dut(dut):
@@ -9,6 +10,7 @@ from test_utilities import asm, repo_root, setup_cocotb_tests
 #     dut.reset.value = 0
 
 
+@show_waveform(True)
 @asm("""
 NOP
 NOP
