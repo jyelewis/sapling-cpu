@@ -7,10 +7,34 @@ from cocotb.triggers import FallingEdge, RisingEdge
 from cocotb_tools.runner import get_runner
 
 
+def verilog_define(constant_name: str, value: str):
+    """
+    decorator to specify build time defines for a test
+
+    example:
+    @verilog_define("TB_MEMORY_CONTROLLER_INIT_DATA", "/Users/jyelewis/dev-personal/sapling-cpu/pkg3_cpu_hdl/testbench/tb_modules/tb_memory_controller/test_data.hex")
+    def my_test(dut):
+        ...
+    """
+
+    def decorator(fn):
+        if not hasattr(fn, "_verilog_defines"):
+            fn._verilog_defines = {}
+
+        if constant_name in fn._verilog_defines:
+            raise Exception(f"verilog_define: constant {constant_name} already defined for function {fn.__name__}")
+
+        fn._verilog_defines[constant_name] = value
+        return fn
+
+    return decorator
+
+
 def setup_cocotb_tests(
     caller_globals,
     sources: list[Path] | None = None,
     hdl_toplevel: str | None = None,
+    default_verilog_defines: dict[str, str] | None = None,
     auto_clk: bool = False,
     auto_reset: bool = False,
 ):
@@ -21,9 +45,11 @@ def setup_cocotb_tests(
     module_file = Path(caller_globals["__file__"])
 
     if sources is None:
+        # default to loading all sources in the test directory
         sources = sorted(module_file.parent.glob("*.sv"))
 
     if hdl_toplevel is None:
+        # default to loading the module with the same name as the test file, minus the "test_" prefix
         hdl_toplevel = test_module.removeprefix("test_")
 
     test_functions = [
@@ -32,7 +58,16 @@ def setup_cocotb_tests(
         if inspect.isfunction(fn) and fn.__module__ == test_module and name.startswith("test_")
     ]
 
-    def make_wrappers(test_name: str, fn):
+    def make_wrappers(test_name: str, fn, default_verilog_defines):
+        if default_verilog_defines is None:
+            default_verilog_defines = {}
+
+        defines = (
+            {**default_verilog_defines, **fn._verilog_defines}
+            if hasattr(fn, "_verilog_defines")
+            else default_verilog_defines
+        )
+
         # the code pytest will run (which then triggers cocotb to take over)
         def pytest_wrapper_fn():
             repo_root = Path(__file__).resolve().parents[1]
@@ -45,14 +80,20 @@ def setup_cocotb_tests(
                 build_dir=str(build_dir),
                 build_args=["-g2012", "-DCOCOTB_SIM=1"],
                 timescale=("1ns", "1ps"),
+                # TODO: support waves
                 waves=False,
+                # changing 'defines' does not trigger a re-compile, force a new build every time
+                always=True,
+                defines=defines,
             )
             runner.test(
                 hdl_toplevel=hdl_toplevel,
                 test_module=test_module,
                 build_dir=str(build_dir),
                 waves=False,
+                # TODO: test filter is new, but not working
                 testcase=f"cocotb_{test_name}",
+                # test_filter=f"^cocotb_{test_name}$",
             )
 
         pytest_wrapper_fn.__name__ = test_name
@@ -77,7 +118,7 @@ def setup_cocotb_tests(
         return pytest_wrapper_fn, cocotb_wrapper_fn
 
     for test_name, fn in test_functions:
-        pytest_wrapper_fn, cocotb_wrapper_fn = make_wrappers(test_name, fn)
+        pytest_wrapper_fn, cocotb_wrapper_fn = make_wrappers(test_name, fn, default_verilog_defines)
 
         # the original test function, that cocotb will run after building
         # cocotb finds tests by walking module globals after import - expose it
