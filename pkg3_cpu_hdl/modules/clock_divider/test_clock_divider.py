@@ -61,7 +61,7 @@ def test_clock_divider():
     )
     runner.test(
         hdl_toplevel="clock_divider",
-        test_module="pkg3_cpu_hdl.modules.clock_divider.test_clock_divider",
+        test_module="test_clock_divider",
         build_dir=str(build_dir),
         waves=True,
     )
