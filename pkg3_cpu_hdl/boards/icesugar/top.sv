@@ -27,15 +27,15 @@ module top
       .GLOBAL_BUFFER_OUTPUT        (clk)
   );
 
-  sapling_cpu_core cpu (
-      .clk(clk),
-      .reset(1'b0),
-      .memory_address(),
-      .memory_read_data(16'h0000),
-      .memory_write_data(),
-      .memory_write_enable(),
-      .memory_ready(1'b1)
-  );
+  //  sapling_cpu_core cpu (
+  //      .clk(clk),
+  //      .reset(1'b0),
+  //      .memory_address(),
+  //      .memory_read_data(16'h0000),
+  //      .memory_write_data(),
+  //      .memory_write_enable(),
+  //      .memory_ready(1'b1)
+  //  );
 
   color_t       color;
   logic   [7:0] tick_number;

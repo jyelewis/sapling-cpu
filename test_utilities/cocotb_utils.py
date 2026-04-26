@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import FallingEdge, RisingEdge
+from cocotb.triggers import FallingEdge, RisingEdge, Timer
 from cocotb_tools.runner import get_runner
 
 
@@ -131,3 +131,7 @@ def setup_cocotb_tests(
 async def tick(dut):
     await RisingEdge(dut.clk)
     await FallingEdge(dut.clk)
+
+
+async def comb_tick():
+    await Timer(1, unit="ns")
