@@ -5,18 +5,21 @@ from cocotb.triggers import Timer
 
 
 @cocotb.test()
-async def test_8bit_reads(dut):
+async def test_8bit_reads_with_peak(dut):
     dut.memory_address.value = 0x0000
     await Timer(1, unit="ns")
     assert dut.memory_read_data.value == 0x00
+    assert dut.memory_read_data_peak.value == 0x01
 
     dut.memory_address.value = 0x0001
     await Timer(1, unit="ns")
     assert dut.memory_read_data.value == 0x01
+    assert dut.memory_read_data_peak.value == 0x02
 
-    dut.memory_address.value = 0x0008
+    dut.memory_address.value = 0x0007
     await Timer(1, unit="ns")
-    assert dut.memory_read_data.value == 0xEE
+    assert dut.memory_read_data.value == 0xAC
+    assert dut.memory_read_data_peak.value == 0xEE
 
 
 # TODO: write some nicer cocotb test utils

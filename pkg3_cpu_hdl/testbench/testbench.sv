@@ -5,8 +5,9 @@ module testbench(
 );
     // TODO: use interfaces?
     logic [15:0] memory_address;
-    logic [15:0] memory_read_data;
-    logic [15:0] memory_write_data;
+    logic [7:0] memory_read_data;
+    logic [7:0] memory_read_data_peak;
+    logic [7:0] memory_write_data;
     logic memory_write_enable;
     logic memory_ready;
     

@@ -1,17 +1,14 @@
 // TODO: write a test for this
 module tb_memory_controller(
-    // TODO: this 16 bit / 8 bit thing is a bit of a mess, should we have a seperate port for "memory_peak_read_data" to give us the extra 8 bits?
-    //      alternately we could just cop the double clock to read in both halves of the memory - ala 6502
     input logic [15:0] memory_address,
-    output logic [15:0] memory_read_data,
-    input logic [15:0] memory_write_data,
+    output logic [7:0] memory_read_data,
+    output logic [7:0] memory_read_data_peak,
+    input logic [7:0] memory_write_data,
     input logic memory_write_enable,
     output logic memory_ready
 );
-    // inline memmory
-    // TODO: is this memory size correct...??
-    // TODO: needs 8 bit seeking... 
-    logic [15:0] memory [0:16];
+    // inline memmory - 64kb of 8 bit values 
+    logic [7:0] memory [2**16];
     
     initial begin
         $readmemh(`TB_MEMORY_CONTROLLER_INIT_DATA, memory);
@@ -25,6 +22,7 @@ module tb_memory_controller(
             memory_ready = 1'b1;
         end else begin
             memory_read_data = memory[memory_address];
+            memory_read_data_peak = memory[memory_address + 1]; // our cpu requires a readahead, to allow reading 16 bits per clock
             memory_ready = 1'b1;        
         end
     end
