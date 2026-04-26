@@ -1,4 +1,4 @@
-// TODO: write a test for this
+
 module tb_memory_controller(
     input logic [15:0] memory_address,
     output logic [7:0] memory_read_data,

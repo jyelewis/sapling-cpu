@@ -21,6 +21,19 @@ async def test_8bit_reads_with_peak(dut):
     assert dut.memory_read_data.value == 0xAC
     assert dut.memory_read_data_peak.value == 0xEE
 
+@cocotb.test()
+async def test_write(dut):
+    dut.memory_address.value = 0x0015
+    dut.memory_write_data.value = 0x42
+    dut.memory_write_enable.value = 1
+    await Timer(1, unit="ns")
+    
+    dut.memory_write_enable.value = 0
+    await Timer(1, unit="ns")
+    
+    assert dut.memory_read_data.value == 0x42
+
+
 
 # TODO: write some nicer cocotb test utils
 def test_testbench():
