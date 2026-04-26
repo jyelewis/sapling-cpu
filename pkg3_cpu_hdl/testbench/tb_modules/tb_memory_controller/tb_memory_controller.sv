@@ -1,7 +1,7 @@
-
+// TODO: write a test for this
 module tb_memory_controller(
     // TODO: this 16 bit / 8 bit thing is a bit of a mess, should we have a seperate port for "memory_peak_read_data" to give us the extra 8 bits?
-    //       alternately we could just cop the double clock to read in both halves of the memory - ala 6502
+    //      alternately we could just cop the double clock to read in both halves of the memory - ala 6502
     input logic [15:0] memory_address,
     output logic [15:0] memory_read_data,
     input logic [15:0] memory_write_data,

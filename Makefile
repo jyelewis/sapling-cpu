@@ -14,7 +14,7 @@ HDL_DIR     := pkg3_cpu_hdl
 BOARD       ?= icesugar
 HDL_BUILD   := $(BUILD_DIR)/$(HDL_DIR)/$(BOARD)
 
-BOARD_SRCS  := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/boards/$(BOARD)/*.sv))
+BOARD_SRCS  := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/boards/$(BOARD)/*.sv) $(wildcard $(HDL_DIR)/boards/$(BOARD)/**/*.sv))
 MODULE_SRCS := $(filter-out %_tb.sv, $(wildcard $(HDL_DIR)/modules/**/*.sv))
 SV_SRCS     := $(BOARD_SRCS) $(MODULE_SRCS)
 

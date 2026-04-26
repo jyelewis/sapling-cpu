@@ -38,7 +38,7 @@ def test_testbench():
 
     assembled_words = asm_to_bin(["LD R1 R2", "NOP", "NOP"])
     initial_memory_hex = "\n".join([f"{word:04x}" for word in assembled_words])
-    
+
     initial_memory = bytearray()
     for word in assembled_words:
         initial_memory.extend(word.to_bytes(2, byteorder="big"))
