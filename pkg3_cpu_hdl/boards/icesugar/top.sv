@@ -27,15 +27,17 @@ module top
       .GLOBAL_BUFFER_OUTPUT        (clk)
   );
 
-  //  sapling_cpu_core cpu (
-  //      .clk(clk),
-  //      .reset(1'b0),
-  //      .memory_address(),
-  //      .memory_read_data(16'h0000),
-  //      .memory_write_data(),
-  //      .memory_write_enable(),
-  //      .memory_ready(1'b1)
-  //  );
+  logic [15:0] requested_memory_address;
+
+  sapling_cpu_core sapling_cpu_core (
+      .clk(clk),
+      .reset(1'b0),
+      .memory_address(requested_memory_address),
+      .memory_read_data(16'h0000),  // forever read nops
+      .memory_write_data(),
+      .memory_write_enable(),
+      .memory_ready(1'b1)
+  );
 
   color_t       color;
   logic   [7:0] tick_number;
@@ -54,6 +56,7 @@ module top
 
   IceSugar_pmod_LEDs pmod_leds (
       .ICESUGAR_PMOD2_LED(ICESUGAR_PMOD2_LED),
-      .value(tick_number)
+      //      .value(tick_number)
+      .value(requested_memory_address[7:0])
   );
 endmodule
