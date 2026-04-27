@@ -1,6 +1,6 @@
 """Sapling CPU virtual machine.
 
-Emulates the Sapling CPU as described in pkg1_design/ISA/.
+Emulates the Sapling CPU
 
 Usage — library:
     cpu = SaplingCpuEmu()
@@ -190,6 +190,7 @@ class SaplingCpuEmu:
 
     def _write_special(self, idx: int, value: int) -> None:
         value &= 0xFF
+        # TODO: bug? We should be big endian
         if idx == SPECIAL_SP_HIGH:
             self.sp = (self.sp & 0x00FF) | (value << 8)
         elif idx == SPECIAL_SP_LOW:
@@ -256,7 +257,8 @@ class SaplingCpuEmu:
         seg_c = (instr >> 2) & 0b111
         imm8 = instr & 0xFF
         simm8 = imm8 - 256 if imm8 & 0x80 else imm8
-
+        
+        # TODO: could probably use the same enum as the assembler for these
         if opcode == 0x00:  # NOP
             return
         if opcode == 0x01:  # LOAD reg = imm8
@@ -430,7 +432,7 @@ class SaplingCpuEmu:
         )
 
 
-def _main() -> None:
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="sapling-vm",
         description="Run a Sapling CPU binary in the emulator.",
@@ -455,7 +457,3 @@ def _main() -> None:
     steps = cpu.run(max_steps=args.steps, trace=args.trace)
     print(f"\nExecuted {steps} steps ({cpu.instructions_executed} instructions)")
     print(cpu.dump_state())
-
-
-if __name__ == "__main__":
-    _main()
