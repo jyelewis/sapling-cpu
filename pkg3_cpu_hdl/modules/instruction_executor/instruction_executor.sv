@@ -18,7 +18,12 @@ module instruction_executor
     // control lines
     // TODO: not sold on this pattern yet
     output logic [15:0] ctrl_next_pc,
-    output logic ctrl_load_instruction
+    output logic ctrl_load_instruction,
+    output logic [3:0] ctrl_read_register_a,
+    output logic [3:0] ctrl_read_register_b,
+    output logic [3:0] ctrl_write_register,
+    output logic [8:0] register_write_data,  // TODO: should we be muxing here?
+    output logic ctrl_register_write_enable
 );
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -28,6 +33,10 @@ module instruction_executor
       // wait for memory to be ready before doing anything
       ctrl_load_instruction <= 0;
     end else begin
+
+      // TODO: sensible defaults on everything
+      ctrl_register_write_enable <= 0;
+
       case (instruction_opcode)
         NOP: begin
           $display("Decoded instruction: NOP");
@@ -39,8 +48,22 @@ module instruction_executor
           ctrl_load_instruction <= 1;
         end
 
+        // TODO: test me
+        LOAD_REG_IMM8: begin
+          $display("Decoded instruction: LOAD_REG_IMM8");
+          ctrl_write_register <= instruction_segment_a;
+          register_write_data <= instruction_imm8;
+          ctrl_register_write_enable <= 1;
+
+          // TODO: do we want to do this everywhere? Sensible defaults
+          ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
+          ctrl_load_instruction <= 1;
+        end
+
+
         default: begin
-          $display("Unknown opcode: %b", instruction_opcode);
+          // TODO: fault + halt signal?
+          $display("Unknown opcode: %h", instruction_opcode);
           ctrl_load_instruction <= 0;
         end
       endcase

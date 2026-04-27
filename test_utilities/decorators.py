@@ -33,11 +33,9 @@ def asm(code: str):
     decorator to specify assembly code to be assembled and loaded into memory before a test runs
     """
     assembled_words = asm_to_bin(code.strip().splitlines())
-    initial_memory_hex = "\n".join([f"{word:04x}" for word in assembled_words])
+    # TODO: should we be using the assembler more directly here?
+    initial_memory_hex = "\n".join(f"{(word >> 8) & 0xFF:02x} {word & 0xFF:02x}" for word in assembled_words)
 
-    initial_memory = bytearray()
-    for word in assembled_words:
-        initial_memory.extend(word.to_bytes(2, byteorder="big"))
     fd, tmp_path = tempfile.mkstemp(suffix=".hex")
     os.close(fd)
     hex_file = Path(tmp_path)

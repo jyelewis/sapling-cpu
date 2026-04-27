@@ -35,4 +35,15 @@ module register_bank (
     register_read_data_a = registers[ctrl_read_register_a];
     register_read_data_b = registers[ctrl_read_register_b];
   end
+
+  // useful for debugging waveforms
+  logic [7:0] R0, R1, R2, R3, R4, R5, R6, R7;
+  assign R0 = registers[0];
+  assign R1 = registers[1];
+  assign R2 = registers[2];
+  assign R3 = registers[3];
+  assign R4 = registers[4];
+  assign R5 = registers[5];
+  assign R6 = registers[6];
+  assign R7 = registers[7];
 endmodule

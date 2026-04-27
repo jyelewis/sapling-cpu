@@ -561,15 +561,13 @@ if __name__ == "__main__":
     output_words = asm_to_bin(asm_lines)
 
     if args.format == "hex":
-        hex_output_lines: list[str] = []
-        for word in output_words:
-            hex_output_lines.append(f"{word:04x}")
-        text_output = "\n".join(hex_output_lines)
+        # output in byte pairs, 16 bits per line (one instruction) separated by a space so we can load files directly into our test bench
+        hex_output_lines = "\n".join(f"{(word >> 8) & 0xFF:02x} {word & 0xFF:02x}" for word in output_words)
         if args.output:
             with open(args.output, "w") as f:
-                f.write(text_output)
+                f.write(hex_output_lines)
         else:
-            print(text_output)
+            print(hex_output_lines)
 
     elif args.format == "debug":
         debug_output_lines: list[str] = []

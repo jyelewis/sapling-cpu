@@ -12,7 +12,7 @@ module testbench(
     logic memory_ready;
     
     
-      sapling_cpu_core cpu (.*);
+      sapling_cpu_core sapling_cpu_core (.*);
       
-      tb_memory_controller memory_controller (.*);
+      tb_memory_controller tb_memory_controller (.*);
 endmodule
