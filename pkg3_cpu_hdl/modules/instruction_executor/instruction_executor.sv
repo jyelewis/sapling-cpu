@@ -15,6 +15,7 @@ module instruction_executor
     input logic memory_ready,
     input logic [15:0] current_pc,
 
+    // TODO: interfaces man!
     // control lines
     // TODO: not sold on this pattern yet
     output logic [15:0] ctrl_next_pc,
@@ -48,16 +49,25 @@ module instruction_executor
           ctrl_load_instruction <= 1;
         end
 
-        // TODO: test me
         LOAD_REG_IMM8: begin
           $display("Decoded instruction: LOAD_REG_IMM8");
           ctrl_write_register <= instruction_segment_a;
           register_write_data <= instruction_imm8;
           ctrl_register_write_enable <= 1;
 
-          // TODO: do we want to do this everywhere? Sensible defaults
           ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
           ctrl_load_instruction <= 1;
+        end
+        
+        LOAD_REG_REG: begin
+            $display("Decoded instruction: LOAD_REG_REG");
+            ctrl_read_register_a <= instruction_segment_b;
+            ctrl_write_register <= instruction_segment_a;
+            register_write_data <= register_read_data_a;
+            ctrl_register_write_enable <= 1;
+            
+            ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
+            ctrl_load_instruction <= 1;
         end
 
 

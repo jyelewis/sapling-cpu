@@ -1,4 +1,5 @@
 
+// TODO: should this be called a register_file?
 module register_bank (
     input logic clk,
     input logic reset,
