@@ -31,4 +31,15 @@ package types;
     POP = 5'h1C,
     WFI = 5'h1D
   } opcode_t;
+
+  // TODO: unify naming of these control enums
+  typedef enum logic [1:0] {
+    NEXT_PC_HOLD = 2'h0,
+    NEXT_PC_INC  = 2'h1
+  } next_pc_src_t;
+
+  typedef enum logic [1:0] {
+    REG_WRITE_DATA_IMM8       = 2'h0,
+    REG_WRITE_DATA_REG_READ_A = 2'h1
+  } reg_write_data_src_t;
 endpackage

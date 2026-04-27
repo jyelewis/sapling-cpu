@@ -17,57 +17,62 @@ module instruction_executor
 
     // TODO: interfaces man!
     // control lines
-    // TODO: not sold on this pattern yet
-    output logic [15:0] ctrl_next_pc,
+    output next_pc_src_t ctrl_next_pc_src,
     output logic ctrl_load_instruction,
     output logic [3:0] ctrl_read_register_a,
     output logic [3:0] ctrl_read_register_b,
     output logic [3:0] ctrl_write_register,
-    output logic [8:0] register_write_data,  // TODO: should we be muxing here?
+    output logic [7:0] ctrl_imm8,
+    output reg_write_data_src_t ctrl_register_write_data_src,
     output logic ctrl_register_write_enable
 );
+  // TODO: don't love this...
+  // latch imm8 so downstream muxes see the value from the decoding cycle,
+  // not the next instruction that has already replaced instruction_imm8.
+  always_ff @(posedge clk) begin
+    ctrl_imm8 <= instruction_imm8;
+  end
+
   always_ff @(posedge clk) begin
     if (reset) begin
-      ctrl_next_pc <= 16'h0000;
+      ctrl_next_pc_src <= NEXT_PC_HOLD;
       ctrl_load_instruction <= 0;
     end else if (!memory_ready) begin
       // wait for memory to be ready before doing anything
+      ctrl_next_pc_src <= NEXT_PC_HOLD;
       ctrl_load_instruction <= 0;
     end else begin
 
       // TODO: sensible defaults on everything
+      ctrl_next_pc_src <= NEXT_PC_HOLD;
       ctrl_register_write_enable <= 0;
 
       case (instruction_opcode)
         NOP: begin
           $display("Decoded instruction: NOP");
-          // our PC increments via 2 registers, causing all instructions to take 2 clock cycles. Not ideal
-          //ctrl_next_pc <= current_pc + 16'h0002;  // move to the next instruction
-
-          // TODO: think more about this, we're always trying to stay ahead
-          ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
+          ctrl_next_pc_src <= NEXT_PC_INC;
           ctrl_load_instruction <= 1;
         end
 
         LOAD_REG_IMM8: begin
           $display("Decoded instruction: LOAD_REG_IMM8");
           ctrl_write_register <= instruction_segment_a;
-          register_write_data <= instruction_imm8;
+          ctrl_register_write_data_src <= REG_WRITE_DATA_IMM8;
           ctrl_register_write_enable <= 1;
 
-          ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
+          ctrl_next_pc_src <= NEXT_PC_INC;
           ctrl_load_instruction <= 1;
         end
-        
+
         LOAD_REG_REG: begin
-            $display("Decoded instruction: LOAD_REG_REG");
-            ctrl_read_register_a <= instruction_segment_b;
-            ctrl_write_register <= instruction_segment_a;
-            register_write_data <= register_read_data_a;
-            ctrl_register_write_enable <= 1;
-            
-            ctrl_next_pc <= ctrl_next_pc + 16'h0002;  // move to the next instruction
-            ctrl_load_instruction <= 1;
+          $display("Decoded instruction: LOAD_REG_REG");
+          ctrl_read_register_a <= instruction_segment_b;
+          ctrl_write_register <= instruction_segment_a;
+          ctrl_register_write_data_src <= REG_WRITE_DATA_REG_READ_A;
+          ctrl_register_write_enable <= 1;
+
+          ctrl_next_pc_src <= NEXT_PC_INC;
+          ctrl_load_instruction <= 1;
         end
 
 

@@ -257,7 +257,7 @@ class SaplingCpuEmu:
         seg_c = (instr >> 2) & 0b111
         imm8 = instr & 0xFF
         simm8 = imm8 - 256 if imm8 & 0x80 else imm8
-        
+
         # TODO: could probably use the same enum as the assembler for these
         if opcode == 0x00:  # NOP
             return

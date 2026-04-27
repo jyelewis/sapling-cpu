@@ -16,7 +16,14 @@ module sapling_cpu_core
   // program counter
   logic [15:0] current_pc;
   logic [15:0] ctrl_next_pc;
-
+  next_pc_src_t ctrl_next_pc_src;
+  always_comb begin
+    case (ctrl_next_pc_src)
+      NEXT_PC_INC:  ctrl_next_pc = current_pc + 16'h0002;
+      NEXT_PC_HOLD: ctrl_next_pc = current_pc;
+      default:      ctrl_next_pc = current_pc;
+    endcase
+  end
   program_counter program_counter (.*);
 
   // register bank
@@ -24,11 +31,24 @@ module sapling_cpu_core
   logic [3:0] ctrl_read_register_b;
 
   logic [3:0] ctrl_write_register;
+  logic [7:0] ctrl_imm8;
+  reg_write_data_src_t ctrl_register_write_data_src;
   logic [8:0] register_write_data;
   logic ctrl_register_write_enable;
 
   logic [8:0] register_read_data_a;
   logic [8:0] register_read_data_b;
+  always_comb begin
+    case (ctrl_register_write_data_src)
+      // TODO: don't love this, we're pipelining without any plan
+      // this is what we did in the last model though...
+      REG_WRITE_DATA_IMM8:       register_write_data = {1'b0, ctrl_imm8};
+      //        REG_WRITE_DATA_IMM8:       register_write_data = instruction_imm8;
+      REG_WRITE_DATA_REG_READ_A: register_write_data = register_read_data_a;
+      // TOdo: error?
+      default:                   register_write_data = {1'b0, ctrl_imm8};
+    endcase
+  end
   register_bank register_bank (.*);
 
   // instruction fetch
