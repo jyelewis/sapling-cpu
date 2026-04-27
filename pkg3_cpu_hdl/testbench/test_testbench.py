@@ -67,7 +67,7 @@ async def test_load_reg_imm8(dut):
     assert reg(dut, 4) == 0x9A
 
 
-@show_waveform(True)
+@show_waveform(False)
 @asm("""
 LD R0 0xAB
 LD R1 R0
