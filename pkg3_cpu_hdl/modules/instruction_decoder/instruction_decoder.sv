@@ -1,5 +1,5 @@
 
-
+// TODO: rename to something without ambigious 'decoder' in the name
 module instruction_decoder
   import types::*;
 (

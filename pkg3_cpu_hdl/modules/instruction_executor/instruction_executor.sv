@@ -1,4 +1,6 @@
 
+// TODO: comb, microcode, rename 'control_unit'
+
 // TODO: test me?
 module instruction_executor
   import types::*;
@@ -33,6 +35,10 @@ module instruction_executor
     ctrl_imm8 <= instruction_imm8;
   end
 
+    // TODO: fetch, decode (this), execute
+    // drop the middle latch stage here
+  // could this possibly be always_comb? we'd need a way to deal with microcode state
+  // think through the pipeline stages 
   always_ff @(posedge clk) begin
     if (reset) begin
       ctrl_next_pc_src <= NEXT_PC_HOLD;
