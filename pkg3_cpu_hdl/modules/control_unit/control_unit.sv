@@ -23,10 +23,9 @@ module control_unit
     output logic [3:0] ctrl_write_register,
     output reg_write_data_src_t ctrl_register_write_data_src,
     output logic ctrl_register_write_enable,
-
     output memory_read_address_src_t ctrl_memory_read_address_src
 );
-
+  // microcode step tracking
   logic ctrl_next_continue_microcode;
   logic [2:0] microcode_step = 0;
   always_ff @(posedge clk) begin
@@ -38,6 +37,19 @@ module control_unit
   end
 
   always_comb begin
+    // set all values to 'nop' defaults
+    // this allows our opcode case statement to only specify control lines that need changing
+    ctrl_next_pc_src = NEXT_PC_INC;
+    ctrl_load_instruction = 1;
+    ctrl_read_register_a = 0;
+    ctrl_read_register_b = 0;
+    ctrl_write_register = 0;
+    ctrl_register_write_data_src = REG_WRITE_DATA_IMM8;
+    ctrl_register_write_enable = 0;
+    ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_NEXT_PC;
+
+    ctrl_next_continue_microcode = 0;
+
     if (reset) begin
       ctrl_next_pc_src = NEXT_PC_HOLD;
       ctrl_load_instruction = 0;
@@ -46,56 +58,44 @@ module control_unit
       ctrl_next_pc_src = NEXT_PC_HOLD;
       ctrl_load_instruction = 0;
     end else begin
-
-      // TODO: sensible defaults on everything
-      ctrl_next_pc_src = NEXT_PC_HOLD;
-      ctrl_register_write_enable = 0;
-      ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_NEXT_PC;
-      ctrl_next_continue_microcode = 0;
-      ctrl_next_pc_src = NEXT_PC_INC;
-      ctrl_load_instruction = 1;
-
       case (instruction_opcode)
         NOP: begin
-          $display("Decoded instruction: NOP");
         end
 
         LOAD_REG_IMM8: begin
-          $display("Decoded instruction: LOAD_REG_IMM8");
           ctrl_write_register = instruction_segment_a;
           ctrl_register_write_data_src = REG_WRITE_DATA_IMM8;
           ctrl_register_write_enable = 1;
         end
 
         LOAD_REG_REG: begin
-          $display("Decoded instruction: LOAD_REG_REG");
           ctrl_read_register_a = instruction_segment_b;
           ctrl_write_register = instruction_segment_a;
           ctrl_register_write_data_src = REG_WRITE_DATA_REG_READ_A;
           ctrl_register_write_enable = 1;
         end
 
-        // TODO: assembler needs support for inlining data
         LOAD_REG_MEM_ABSOLUTE: begin
-          $display("Decoded instruction: LOAD_REG_MEM_ABSOLUTE");
-          // a: dest, b: reg_hi, c: reg_low
+          unique case (microcode_step)
+            0: begin
+              // step 1a: load values from specified registers
+              ctrl_read_register_a = instruction_segment_b;
+              ctrl_read_register_b = instruction_segment_c;
 
-          // step 1: load values from specified registers, request memory load from [reg1, reg2]
-          // TOOD: switch to case statemnt
-          if (microcode_step == 0) begin
-            ctrl_read_register_a = instruction_segment_b;
-            ctrl_read_register_b = instruction_segment_c;
-            ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_REG_COMB;
+              // step 1b: request memory load from [reg1, reg2]
+              ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_REG_COMB;
 
-            ctrl_next_continue_microcode = 1;
-            ctrl_next_pc_src = NEXT_PC_HOLD;
-            ctrl_load_instruction = 0;
-          end else begin
-            // step 2: store in reg specified in segment_a
-            ctrl_write_register = instruction_segment_a;
-            ctrl_register_write_data_src = REG_WRITE_DATA_MEMORY;
-            ctrl_register_write_enable = 1;
-          end
+              ctrl_next_continue_microcode = 1;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_load_instruction = 0;
+            end
+            1: begin
+              // step 2: store in reg specified in segment_a
+              ctrl_write_register = instruction_segment_a;
+              ctrl_register_write_data_src = REG_WRITE_DATA_MEMORY;
+              ctrl_register_write_enable = 1;
+            end
+          endcase
         end
 
 
