@@ -19,10 +19,9 @@ module sapling_cpu_core
   logic [15:0] next_pc;
   next_pc_src_t ctrl_next_pc_src;
   always_comb begin
-    case (ctrl_next_pc_src)
+    unique case (ctrl_next_pc_src)
       NEXT_PC_INC:  next_pc = current_pc + 16'h0002;
       NEXT_PC_HOLD: next_pc = current_pc;
-      default:      next_pc = current_pc;
     endcase
   end
   program_counter program_counter (.*);
@@ -53,11 +52,9 @@ module sapling_cpu_core
   reg_write_data_src_t ctrl_register_write_data_src;
   logic [8:0] register_write_data;
   always_comb begin
-    case (ctrl_register_write_data_src)
+    unique case (ctrl_register_write_data_src)
       REG_WRITE_DATA_IMM8:       register_write_data = instruction_imm8;
       REG_WRITE_DATA_REG_READ_A: register_write_data = register_read_data_a;
-      // TOdo: error?
-      default:                   register_write_data = '0;
     endcase
   end
 

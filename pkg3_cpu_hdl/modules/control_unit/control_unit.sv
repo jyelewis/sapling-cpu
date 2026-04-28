@@ -7,7 +7,6 @@ module control_unit
     input logic reset,
 
     input opcode_t instruction_opcode,
-    // TODO: do we need these values? should they be muxed?
     input logic [3:0] instruction_segment_a,
     input logic [3:0] instruction_segment_b,
     input logic [3:0] instruction_segment_c,
@@ -68,7 +67,6 @@ module control_unit
 
 
         default: begin
-          // TODO: fault + halt signal?
           $display("Unknown opcode: %h", instruction_opcode);
           ctrl_load_instruction = 0;
         end
