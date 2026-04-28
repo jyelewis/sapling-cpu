@@ -50,7 +50,7 @@ fmt-check:
 	$(UV) run ruff format --check
 
 .PHONY: check
-check: lint test sam-all hdl-build
+check: fmt-check lint test sam-all hdl-build 
 
 # --- .sam assembly / running ----------------------------------------------
 

@@ -2,6 +2,7 @@ from test_utilities import asm, reg, repo_root, setup_cocotb_tests, show_wavefor
 
 # TODO: should we run these on both the vm & the verilog tb? Check they behave the same
 
+
 async def wait_startup(dut):
     # TODO: whats the 2 clocks for setup?
     await tick(dut)
