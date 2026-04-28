@@ -1,6 +1,5 @@
 
-// TODO: rename to something without ambigious 'decoder' in the name
-module instruction_decoder
+module instruction_parser
   import types::*;
 (
     input logic [15:0] instruction,
@@ -12,6 +11,7 @@ module instruction_decoder
     output logic [7:0] instruction_imm8
 );
   // Decode the instruction into its components
+  // TODO: interfaces?
   assign instruction_opcode = opcode_t'(instruction[15:11]);
   assign instruction_segment_a = instruction[10:8];
   assign instruction_segment_b = instruction[7:5];

@@ -2,9 +2,7 @@ from test_utilities import asm, reg, repo_root, setup_cocotb_tests, show_wavefor
 
 
 async def wait_startup(dut):
-    # TODO: whats the 4 clocks for setup?
-    await tick(dut)
-    await tick(dut)
+    # TODO: whats the 2 clocks for setup?
     await tick(dut)
     await tick(dut)
     # next tick we execute instruction 0x0000

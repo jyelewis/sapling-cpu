@@ -2,7 +2,7 @@ from test_utilities import setup_cocotb_tests, tick
 
 
 async def test_program_counter(dut):
-    dut.ctrl_next_pc.value = 0x1234
+    dut.next_pc.value = 0x1234
     assert dut.current_pc.value == 0x0000
     await tick(dut)
     assert dut.current_pc.value == 0x1234

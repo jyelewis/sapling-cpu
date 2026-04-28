@@ -1,7 +1,7 @@
 from test_utilities import comb_tick, setup_cocotb_tests
 
 
-async def test_instruction_decoder(dut):
+async def test_instruction_parser(dut):
     # Instruction: 0000  opcode: 00 NOP                   seg_a: 0  seg_b: 0  seg_c: 0  imm8: 0
     dut.instruction.value = 0x0000
     await comb_tick()
