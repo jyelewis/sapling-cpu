@@ -55,18 +55,26 @@ module sapling_cpu_core
     unique case (ctrl_register_write_data_src)
       REG_WRITE_DATA_IMM8:       register_write_data = instruction_imm8;
       REG_WRITE_DATA_REG_READ_A: register_write_data = register_read_data_a;
+      REG_WRITE_DATA_MEMORY:     register_write_data = memory_read_data;
     endcase
   end
 
   register_bank register_bank (.*);
 
+  // memory
+  memory_read_address_src_t ctrl_memory_read_address_src;
+  always_comb begin
+    unique case (ctrl_memory_read_address_src)
+      MEMORY_READ_ADDRESS_NEXT_PC:  memory_address = next_pc;
+      MEMORY_READ_ADDRESS_REG_COMB: memory_address = {register_read_data_a, register_read_data_b};
+    endcase
+
+    memory_write_data   = 8'h00;
+    memory_write_enable = 0;
+  end
+
   // control_unit
   control_unit control_unit (.*);
 
-  // PLACEHOLDER: always load mem from next PC
-  always_comb begin
-    memory_address = next_pc;
-    memory_write_data = 8'h00;
-    memory_write_enable = 0;
-  end
+
 endmodule

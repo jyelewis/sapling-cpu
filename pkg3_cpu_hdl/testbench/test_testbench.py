@@ -94,6 +94,53 @@ async def test_load_reg_reg(dut):
     assert reg(dut, 2) == 0xAB
 
 
+@show_waveform(False)
+@asm("""
+// constant at byte 1
+LD R0 0xAB
+
+// load address
+LD R1 0x00
+LD R2 0x01
+
+// load our constant from byte 1
+LD R3 #[R1 R2]
+""")
+async def test_load_reg_mem_absolute(dut):
+    await wait_startup(dut)
+
+    assert reg(dut, 0) == 0x00
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x00
+    assert reg(dut, 3) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x00
+    assert reg(dut, 3) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x00
+    assert reg(dut, 3) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x01
+    assert reg(dut, 3) == 0x00
+
+    # LD is a 2 cycle instruction
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x01
+    assert reg(dut, 3) == 0xAB  # load imm8 from the original instruction
+
+
 types_path = repo_root / "pkg3_cpu_hdl" / "types.sv"
 modules_path = repo_root / "pkg3_cpu_hdl" / "modules"
 tb_path = repo_root / "pkg3_cpu_hdl" / "testbench"

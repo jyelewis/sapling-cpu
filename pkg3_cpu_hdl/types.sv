@@ -40,6 +40,12 @@ package types;
 
   typedef enum logic [1:0] {
     REG_WRITE_DATA_IMM8       = 2'h0,
-    REG_WRITE_DATA_REG_READ_A = 2'h1
+    REG_WRITE_DATA_REG_READ_A = 2'h1,
+    REG_WRITE_DATA_MEMORY     = 2'h2
   } reg_write_data_src_t;
+
+  typedef enum logic [1:0] {
+    MEMORY_READ_ADDRESS_NEXT_PC  = 2'h0,
+    MEMORY_READ_ADDRESS_REG_COMB = 2'h1
+  } memory_read_address_src_t;
 endpackage
