@@ -183,9 +183,7 @@ async def test_store_reg_mem_absolute(dut):
     await tick(dut)
     await tick(dut)
 
-    # TODO: this is failing, we seem to write to 0x0202 instead?? No idea why
-    assert read_memory_byte(dut, 0x0202) == 0xAB # TODO: WHY 0x0202??
-    assert read_memory_byte(dut, 0x0102) == 0xAB # TODO: WHY NOT 0x0102
+    assert read_memory_byte(dut, 0x0102) == 0xAB
     await tick(dut)
     await tick(dut)
     await tick(dut)

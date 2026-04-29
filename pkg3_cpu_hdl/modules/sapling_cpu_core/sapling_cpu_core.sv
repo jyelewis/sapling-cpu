@@ -44,15 +44,15 @@ module sapling_cpu_core
   logic [3:0] ctrl_read_register_a;
   logic [3:0] ctrl_read_register_b;
   logic [3:0] ctrl_read_register_c;
-  logic [8:0] register_read_data_a;
-  logic [8:0] register_read_data_b;
-  logic [8:0] register_read_data_c;
+  logic [7:0] register_read_data_a;
+  logic [7:0] register_read_data_b;
+  logic [7:0] register_read_data_c;
 
   // writes
   logic [3:0] ctrl_write_register;
   logic ctrl_register_write_enable;
   reg_write_data_src_t ctrl_register_write_data_src;
-  logic [8:0] register_write_data;
+  logic [7:0] register_write_data;
   always_comb begin
     unique case (ctrl_register_write_data_src)
       REG_WRITE_DATA_IMM8:       register_write_data = instruction_imm8;

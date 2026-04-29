@@ -8,12 +8,12 @@ module register_bank (
     input logic [3:0] ctrl_read_register_b,
     input logic [3:0] ctrl_read_register_c,
 
-    output logic [8:0] register_read_data_a,
-    output logic [8:0] register_read_data_b,
-    output logic [8:0] register_read_data_c,
+    output logic [7:0] register_read_data_a,
+    output logic [7:0] register_read_data_b,
+    output logic [7:0] register_read_data_c,
 
     input logic [3:0] ctrl_write_register,
-    input logic [8:0] register_write_data,
+    input logic [7:0] register_write_data,
     input logic ctrl_register_write_enable
 );
   // 8x 8-bit registers
@@ -21,14 +21,14 @@ module register_bank (
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      registers[0] <= 9'h000;
-      registers[1] <= 9'h000;
-      registers[2] <= 9'h000;
-      registers[3] <= 9'h000;
-      registers[4] <= 9'h000;
-      registers[5] <= 9'h000;
-      registers[6] <= 9'h000;
-      registers[7] <= 9'h000;
+      registers[0] <= 8'h00;
+      registers[1] <= 8'h00;
+      registers[2] <= 8'h00;
+      registers[3] <= 8'h00;
+      registers[4] <= 8'h00;
+      registers[5] <= 8'h00;
+      registers[6] <= 8'h00;
+      registers[7] <= 8'h00;
     end else if (ctrl_register_write_enable) begin
       registers[ctrl_write_register] <= register_write_data;
     end
