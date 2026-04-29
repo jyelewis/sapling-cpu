@@ -20,10 +20,13 @@ module control_unit
     output logic ctrl_load_instruction,
     output logic [3:0] ctrl_read_register_a,
     output logic [3:0] ctrl_read_register_b,
+    output logic [3:0] ctrl_read_register_c,
     output logic [3:0] ctrl_write_register,
     output reg_write_data_src_t ctrl_register_write_data_src,
     output logic ctrl_register_write_enable,
-    output memory_read_address_src_t ctrl_memory_read_address_src
+    output memory_address_src_t ctrl_memory_address_src,
+    output memory_write_src_t ctrl_memory_write_src,  // TODO: ayy we finally muxed this properly
+    output logic ctrl_memory_write
 );
   // microcode step tracking
   logic ctrl_next_continue_microcode;
@@ -46,7 +49,9 @@ module control_unit
     ctrl_write_register = 0;
     ctrl_register_write_data_src = REG_WRITE_DATA_IMM8;
     ctrl_register_write_enable = 0;
-    ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_NEXT_PC;
+    ctrl_memory_address_src = MEMORY_ADDRESS_NEXT_PC;
+    ctrl_memory_write_src = MEMORY_WRITE_REG_C;
+    ctrl_memory_write = 0;
 
     ctrl_next_continue_microcode = 0;
 
@@ -83,7 +88,7 @@ module control_unit
               ctrl_read_register_b = instruction_segment_c;
 
               // step 1b: request memory load from [reg1, reg2]
-              ctrl_memory_read_address_src = MEMORY_READ_ADDRESS_REG_COMB;
+              ctrl_memory_address_src = MEMORY_ADDRESS_REG_COMB;
 
               ctrl_next_continue_microcode = 1;
               ctrl_next_pc_src = NEXT_PC_HOLD;
@@ -94,6 +99,29 @@ module control_unit
               ctrl_write_register = instruction_segment_a;
               ctrl_register_write_data_src = REG_WRITE_DATA_MEMORY;
               ctrl_register_write_enable = 1;
+            end
+          endcase
+        end
+
+        STORE_MEM_ABSOLUTE_REG: begin
+          unique case (microcode_step)
+            0: begin
+              // step 1a: load address + data from specified registers
+              ctrl_read_register_a = instruction_segment_a;  // dest addr hi
+              ctrl_read_register_b = instruction_segment_b;  // dest addr low
+              ctrl_read_register_c = instruction_segment_c;  // src
+
+              // step 1b: request memory write of REG_C into [reg1, reg2]
+              ctrl_memory_address_src = MEMORY_ADDRESS_REG_COMB;
+              ctrl_memory_write_src = MEMORY_WRITE_REG_C;
+              ctrl_memory_write = 1;
+
+              ctrl_next_continue_microcode = 1;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_load_instruction = 0;  // memory address bus in use
+            end
+            1: begin
+              // inserted NOP while the memory bus is being used for our write
             end
           endcase
         end

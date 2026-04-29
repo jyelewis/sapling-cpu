@@ -6,13 +6,15 @@ module register_bank (
 
     input logic [3:0] ctrl_read_register_a,
     input logic [3:0] ctrl_read_register_b,
+    input logic [3:0] ctrl_read_register_c,
+
+    output logic [8:0] register_read_data_a,
+    output logic [8:0] register_read_data_b,
+    output logic [8:0] register_read_data_c,
 
     input logic [3:0] ctrl_write_register,
     input logic [8:0] register_write_data,
-    input logic ctrl_register_write_enable,
-
-    output logic [8:0] register_read_data_a,
-    output logic [8:0] register_read_data_b
+    input logic ctrl_register_write_enable
 );
   // 8x 8-bit registers
   logic [7:0] registers[8];
@@ -35,6 +37,7 @@ module register_bank (
   always_comb begin
     register_read_data_a = registers[ctrl_read_register_a];
     register_read_data_b = registers[ctrl_read_register_b];
+    register_read_data_c = registers[ctrl_read_register_c];
   end
 
   // useful for debugging waveforms

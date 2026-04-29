@@ -45,7 +45,9 @@ package types;
   } reg_write_data_src_t;
 
   typedef enum logic [1:0] {
-    MEMORY_READ_ADDRESS_NEXT_PC  = 2'h0,
-    MEMORY_READ_ADDRESS_REG_COMB = 2'h1
-  } memory_read_address_src_t;
+    MEMORY_ADDRESS_NEXT_PC  = 2'h0,
+    MEMORY_ADDRESS_REG_COMB = 2'h1
+  } memory_address_src_t;
+
+  typedef enum logic [1:0] {MEMORY_WRITE_REG_C = 2'h0} memory_write_src_t;
 endpackage

@@ -1,4 +1,4 @@
-from test_utilities import asm, reg, repo_root, setup_cocotb_tests, show_waveform, tick
+from test_utilities import asm, read_memory_byte, reg, repo_root, setup_cocotb_tests, show_waveform, tick
 
 # TODO: should we run these on both the vm & the verilog tb? Check they behave the same
 
@@ -141,6 +141,55 @@ async def test_load_reg_mem_absolute(dut):
     assert reg(dut, 1) == 0x00
     assert reg(dut, 2) == 0x01
     assert reg(dut, 3) == 0xAB  # load imm8 from the original instruction
+
+
+@show_waveform(False)
+@asm("""
+// value to write
+LD R0 0xAB
+
+// load address 0x0102
+LD R1 0x01
+LD R2 0x02
+
+// store 0xAB at 0x0102
+ST #[R1 R2] R0
+""")
+async def test_store_reg_mem_absolute(dut):
+    await wait_startup(dut)
+
+    assert reg(dut, 0) == 0x00
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x00
+    assert reg(dut, 2) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x01
+    assert reg(dut, 2) == 0x00
+
+    await tick(dut)
+    assert reg(dut, 0) == 0xAB
+    assert reg(dut, 1) == 0x01
+    assert reg(dut, 2) == 0x02
+
+    assert read_memory_byte(dut, 0x0102) == 0x00
+
+    # LD is a 2 cycle instruction
+    await tick(dut)
+    await tick(dut)
+
+    # TODO: this is failing, we seem to write to 0x0202 instead?? No idea why
+    assert read_memory_byte(dut, 0x0202) == 0xAB # TODO: WHY 0x0202??
+    assert read_memory_byte(dut, 0x0102) == 0xAB # TODO: WHY NOT 0x0102
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
 
 
 types_path = repo_root / "pkg3_cpu_hdl" / "types.sv"

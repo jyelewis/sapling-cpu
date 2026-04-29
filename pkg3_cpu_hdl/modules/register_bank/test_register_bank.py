@@ -5,6 +5,7 @@ async def test_inits_zero(dut):
     # clear input state
     dut.ctrl_read_register_a.value = 0
     dut.ctrl_read_register_b.value = 0
+    dut.ctrl_read_register_c.value = 0
     dut.ctrl_write_register.value = 0
     dut.register_write_data.value = 0
     dut.ctrl_register_write_enable.value = 0
@@ -12,12 +13,15 @@ async def test_inits_zero(dut):
 
     assert dut.register_read_data_a.value == 0
     assert dut.register_read_data_b.value == 0
+    assert dut.register_read_data_c.value == 0
 
     dut.ctrl_read_register_a.value = 1
     dut.ctrl_read_register_b.value = 2
+    dut.ctrl_read_register_c.value = 2
     await comb_tick()
     assert dut.register_read_data_a.value == 0
     assert dut.register_read_data_b.value == 0
+    assert dut.register_read_data_c.value == 0
 
     dut.ctrl_read_register_a.value = 3
     dut.ctrl_read_register_b.value = 4
@@ -54,16 +58,19 @@ async def test_write_to_each(dut):
         dut.ctrl_register_write_enable.value = 1
         dut.ctrl_read_register_a.value = reg  # read back our value
         dut.ctrl_read_register_b.value = reg  # on both ports
+        dut.ctrl_read_register_c.value = reg  # now 3
 
         await comb_tick()
         # pre-read, old value
         assert dut.register_read_data_a.value == 0
         assert dut.register_read_data_b.value == 0
+        assert dut.register_read_data_c.value == 0
 
         # do the write
         await tick(dut)
         assert dut.register_read_data_a.value == reg + 5
         assert dut.register_read_data_b.value == reg + 5
+        assert dut.register_read_data_c.value == reg + 5
 
         # reset
         dut.register_write_data.value = 0
@@ -74,9 +81,11 @@ async def test_write_to_each(dut):
     for reg in range(0, 7):
         dut.ctrl_read_register_a.value = reg  # read back our value
         dut.ctrl_read_register_b.value = reg  # on both ports
+        dut.ctrl_read_register_c.value = reg  # now three
         await comb_tick()
         assert dut.register_read_data_a.value == reg + 5
         assert dut.register_read_data_b.value == reg + 5
+        assert dut.register_read_data_c.value == reg + 5
 
 
 setup_cocotb_tests(globals(), auto_clk=True, auto_reset=True)

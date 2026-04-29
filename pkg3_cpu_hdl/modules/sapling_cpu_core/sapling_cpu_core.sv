@@ -43,8 +43,10 @@ module sapling_cpu_core
   // reads
   logic [3:0] ctrl_read_register_a;
   logic [3:0] ctrl_read_register_b;
+  logic [3:0] ctrl_read_register_c;
   logic [8:0] register_read_data_a;
   logic [8:0] register_read_data_b;
+  logic [8:0] register_read_data_c;
 
   // writes
   logic [3:0] ctrl_write_register;
@@ -62,19 +64,24 @@ module sapling_cpu_core
   register_bank register_bank (.*);
 
   // memory
-  memory_read_address_src_t ctrl_memory_read_address_src;
+  // TODO: should probably go in a memory controller module?
+  memory_address_src_t ctrl_memory_address_src;
+  memory_write_src_t ctrl_memory_write_src;
+  logic ctrl_memory_write;
+
   always_comb begin
-    unique case (ctrl_memory_read_address_src)
-      MEMORY_READ_ADDRESS_NEXT_PC:  memory_address = next_pc;
-      MEMORY_READ_ADDRESS_REG_COMB: memory_address = {register_read_data_a, register_read_data_b};
+    unique case (ctrl_memory_address_src)
+      MEMORY_ADDRESS_NEXT_PC:  memory_address = next_pc;
+      MEMORY_ADDRESS_REG_COMB: memory_address = {register_read_data_a, register_read_data_b};
     endcase
 
-    memory_write_data   = 8'h00;
-    memory_write_enable = 0;
+    unique case (ctrl_memory_write_src)
+      MEMORY_WRITE_REG_C: memory_write_data = register_read_data_c;
+    endcase
+
+    memory_write_enable = ctrl_memory_write;
   end
 
   // control_unit
   control_unit control_unit (.*);
-
-
 endmodule
