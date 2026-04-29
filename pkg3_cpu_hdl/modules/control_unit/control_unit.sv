@@ -64,23 +64,23 @@ module control_unit
       ctrl_load_instruction = 0;
     end else begin
       case (instruction_opcode)
-        NOP: begin
+        OPCODE_NOP: begin
         end
 
-        LOAD_REG_IMM8: begin
+        OPCODE_LOAD_REG_IMM8: begin
           ctrl_write_register = instruction_segment_a;
           ctrl_register_write_data_src = REG_WRITE_DATA_IMM8;
           ctrl_register_write_enable = 1;
         end
 
-        LOAD_REG_REG: begin
+        OPCODE_LOAD_REG_REG: begin
           ctrl_read_register_a = instruction_segment_b;
           ctrl_write_register = instruction_segment_a;
           ctrl_register_write_data_src = REG_WRITE_DATA_REG_READ_A;
           ctrl_register_write_enable = 1;
         end
 
-        LOAD_REG_MEM_ABSOLUTE: begin
+        OPCODE_LOAD_REG_MEM_ABSOLUTE: begin
           unique case (microcode_step)
             0: begin
               // step 1a: load values from specified registers
@@ -103,7 +103,7 @@ module control_unit
           endcase
         end
 
-        STORE_MEM_ABSOLUTE_REG: begin
+        OPCODE_STORE_MEM_ABSOLUTE_REG: begin
           unique case (microcode_step)
             0: begin
               // step 1a: load address + data from specified registers
