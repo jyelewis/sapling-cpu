@@ -56,11 +56,19 @@ package types;
   typedef enum logic [2:0] {
     ALU_OP_ADD = 3'h0,
     ALU_OP_SUB = 3'h1,
-    ALU_OP_CMP = 3'h2,
-    ALU_OP_AND = 3'h3,
-    ALU_OP_OR  = 3'h4,
-    ALU_OP_XOR = 3'h5,
-    ALU_OP_SHL = 3'h6,
-    ALU_OP_SHR = 3'h7
+    ALU_OP_AND = 3'h2,
+    ALU_OP_OR = 3'h3,
+    ALU_OP_XOR = 3'h4,
+    ALU_OP_SHL = 3'h5,
+    ALU_OP_SHR = 3'h6
   } alu_op_t;
+  
+  typedef struct packed {
+      logic [2:0] unused; // 5, 6, 7
+      logic disable_interrupts; // 4
+      logic overflow; // 3
+      logic carry; // 2
+      logic negative; // 1
+      logic zero; // 0
+  } flags_t;
 endpackage
