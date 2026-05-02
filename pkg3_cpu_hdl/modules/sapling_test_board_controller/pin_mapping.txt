@@ -1,0 +1,28 @@
+7-segment mappings: https://www.ic-components.com/blog/comprehensive-guide-to-understanding-7-segment-led-displays.jsp
+
+ 0: Green  7-segment A
+ 1: Green  7-segment B
+ 2: Green  7-segment C
+ 3: Green  7-segment D
+ 4: Green  7-segment E
+ 5: Green  7-segment F
+ 6: Green  7-segment G
+ 7: Red    7-segment A
+ 8: N/C
+ 9: N/C
+10: Red    7-segment G
+11: Red    7-segment F
+12: Red    7-segment E
+13: Red    7-segment D
+14: Red    7-segment C
+15: Red    7-segment B
+16: Red    LED0
+17: Red    LED1
+18: Red    LED2
+19: Red    LED3
+20: Yellow LED0
+21: Yellow LED1
+22: Green  LED0
+23: Green  LED1
+24+: N/C
+ 
