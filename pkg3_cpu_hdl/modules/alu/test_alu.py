@@ -25,7 +25,7 @@ async def do_alu_op(
     flag_carry: bool = False,
     flag_overflow: bool = False,
 ):
-    dut.alu_op.value = op.value
+    dut.ctrl_alu_op.value = op.value
     dut.alu_lhs.value = lhs
     dut.alu_rhs.value = rhs
     dut.alu_carry_in.value = carry_in

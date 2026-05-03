@@ -53,15 +53,36 @@ module sapling_cpu_core
   logic ctrl_register_write_enable;
   reg_write_data_src_t ctrl_register_write_data_src;
   logic [7:0] register_write_data;
+  logic [7:0] alu_result;  // early declare so we can use for writes
   always_comb begin
     unique case (ctrl_register_write_data_src)
       REG_WRITE_DATA_IMM8:       register_write_data = instruction_imm8;
       REG_WRITE_DATA_REG_READ_A: register_write_data = register_read_data_a;
       REG_WRITE_DATA_MEMORY:     register_write_data = memory_read_data;
+      REG_WRITE_DATA_ALU:        register_write_data = alu_result;
     endcase
   end
 
   register_bank register_bank (.*);
+
+  // ALU
+  alu_op_t ctrl_alu_op;
+  flags_t  alu_result_flags;
+  alu alu (
+      .alu_lhs(register_read_data_a),
+      .alu_rhs(register_read_data_b),
+      .alu_carry_in(1'h0),  // TODO: implement carry
+      .*
+  );
+
+  // flags
+  logic   ctrl_load_flags;
+  flags_t current_flags;  // early declare
+  flags flags (
+      .flags_in (alu_result_flags),  // TODO: special reads/writes. TODO: maintain intd flag?
+      .flags_out(current_flags),
+      .*
+  );
 
   // memory
   // TODO: should probably go in a memory controller module?

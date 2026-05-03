@@ -2,7 +2,7 @@
 module alu
   import types::*;
 (
-    input alu_op_t alu_op,
+    input alu_op_t ctrl_alu_op,
     input logic [7:0] alu_lhs,
     input logic [7:0] alu_rhs,
     input logic alu_carry_in,
@@ -17,7 +17,7 @@ module alu
     alu_result_flags.carry = 0;
     alu_result_flags.overflow = 0;
 
-    case (alu_op)
+    case (ctrl_alu_op)
       ALU_OP_ADD: begin
         wide_result = alu_lhs + alu_rhs + alu_carry_in;
         alu_result = wide_result[7:0];

@@ -25,8 +25,11 @@ module control_unit
     output reg_write_data_src_t ctrl_register_write_data_src,
     output logic ctrl_register_write_enable,
     output memory_address_src_t ctrl_memory_address_src,
-    output memory_write_src_t ctrl_memory_write_src,  // TODO: ayy we finally muxed this properly
-    output logic ctrl_memory_write
+    output memory_write_src_t ctrl_memory_write_src,
+    output logic ctrl_memory_write,
+
+    output alu_op_t ctrl_alu_op,
+    output logic ctrl_load_flags
 );
   // microcode step tracking
   logic ctrl_next_continue_microcode;
@@ -52,6 +55,8 @@ module control_unit
     ctrl_memory_address_src = MEMORY_ADDRESS_NEXT_PC;
     ctrl_memory_write_src = MEMORY_WRITE_REG_C;
     ctrl_memory_write = 0;
+    ctrl_load_flags = 0;
+    ctrl_alu_op = ALU_OP_ADD;
 
     ctrl_next_continue_microcode = 0;
 
@@ -124,6 +129,21 @@ module control_unit
               // inserted NOP while the memory bus is being used for our write
             end
           endcase
+        end
+
+        OPCODE_ADD: begin
+          // feed data into the ALU
+          ctrl_read_register_a = instruction_segment_a;  // dest reg
+          ctrl_read_register_b = instruction_segment_b;  // src reg
+          ctrl_alu_op = ALU_OP_ADD;
+
+          // write result into dest reg
+          ctrl_write_register = instruction_segment_a;  // dest reg
+          ctrl_register_write_data_src = REG_WRITE_DATA_ALU;
+          ctrl_register_write_enable = 1;
+
+          // grab updated flags
+          ctrl_load_flags = 1;
         end
 
 

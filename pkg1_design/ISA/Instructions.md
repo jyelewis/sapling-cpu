@@ -10,6 +10,7 @@ All instructions start with a 6 bit opcode, followed by 0-3 segments, or 0-1 seg
 ```
 
 # Instruction list
+TODO: missing carry settings for ALU ops
 
 | Instruction                                  | Mnemonic | Opcode | Segment A        | Segment B       | Segment C | Immediate Value  | Sets Flags | Description                                                                                    |
 |----------------------------------------------|----------| ------ | ---------------- | --------------- | --------- | ---------------- | ---------- | ---------------------------------------------------------------------------------------------- |

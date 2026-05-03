@@ -190,6 +190,22 @@ async def test_store_reg_mem_absolute(dut):
     await tick(dut)
 
 
+@show_waveform(False)
+@asm("""
+LD R5 0x05
+LD R6 0x06
+
+ADD R5 R6
+""")
+async def test_alu_add(dut):
+    await wait_startup(dut)
+
+    await tick(dut)  # LD R5 0x05
+    await tick(dut)  # LD R6 0x06
+    await tick(dut)  # ADD R5 R6
+    assert reg(dut, 5) == 0x0B
+
+
 types_path = repo_root / "pkg3_cpu_hdl" / "types.sv"
 modules_path = repo_root / "pkg3_cpu_hdl" / "modules"
 tb_path = repo_root / "pkg3_cpu_hdl" / "testbench"

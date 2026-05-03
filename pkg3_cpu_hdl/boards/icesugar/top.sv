@@ -44,7 +44,7 @@ module top
       .memory_ready(1'b1)
   );
 
-  color_t       color;
+  color_t        color;
   logic   [15:0] tick_number;
 
   always_ff @(posedge clk) begin
