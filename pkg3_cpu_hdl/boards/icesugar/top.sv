@@ -7,7 +7,11 @@ module top
     output logic ICESUGAR_LED_G,
     output logic ICESUGAR_LED_B,
 
-    output logic [7:0] ICESUGAR_PMOD2_LED
+    output logic ICESUGAR_P2_1,
+    output logic ICESUGAR_P2_2,
+    output logic ICESUGAR_P2_3
+
+    //    output logic [7:0] ICESUGAR_PMOD2_LED
 );
 
   logic generated_clk;
@@ -15,7 +19,8 @@ module top
 
   // iCESugar clock is 12 MHz - divide down to get a 1hz clock
   clock_divider #(
-      .DIVISOR(12_000_000)
+      //      .DIVISOR(12_000_000)
+      .DIVISOR(120_00)
   ) clock_divider (
       .clk_in (ICESUGAR_CLK),
       .clk_out(generated_clk),
@@ -40,7 +45,7 @@ module top
   );
 
   color_t       color;
-  logic   [7:0] tick_number;
+  logic   [15:0] tick_number;
 
   always_ff @(posedge clk) begin
     color <= color_t'(color + 1);  // wraps 000 -> 111 -> 000
@@ -54,9 +59,30 @@ module top
       .ICESUGAR_LED_B(ICESUGAR_LED_B)
   );
 
-  IceSugar_pmod_LEDs pmod_leds (
-      .ICESUGAR_PMOD2_LED(ICESUGAR_PMOD2_LED),
-      //      .value(tick_number)
-      .value(requested_memory_address[7:0])
+  //  IceSugar_pmod_LEDs pmod_leds (
+  //      .ICESUGAR_PMOD2_LED(ICESUGAR_PMOD2_LED),
+  //      //      .value(tick_number)
+  //      .value(requested_memory_address[7:0])
+  //  );
+
+  // re-latch
+  logic [7:0] io_tick;
+  always_ff @(posedge clk) begin
+    io_tick <= io_tick + 1;
+  end
+
+  // driving the test board
+  sapling_test_board_controller sapling_test_board_controller (
+      .clk(clk),  // TODO: should this be our clock? do we need to sync it?
+      .reset(0),
+      .update_display(io_tick == 0),  // update on our clock
+
+      .green_hex(8'b01010101),
+      .red_hex(tick_number[15:8]),
+      .leds(tick_number[15:8]),
+
+      .pin_spi_clk  (ICESUGAR_P2_1),
+      .pin_spi_data (ICESUGAR_P2_2),
+      .pin_led_latch(ICESUGAR_P2_3)
   );
 endmodule
