@@ -190,12 +190,11 @@ async def test_store_reg_mem_absolute(dut):
     await tick(dut)
 
 
-@show_waveform(False)
 @asm("""
 LD R5 0x05
 LD R6 0x06
 
-ADD R5 R6
+ADD R5 R6 CARRY_ZERO
 """)
 async def test_alu_add(dut):
     await wait_startup(dut)
@@ -204,6 +203,46 @@ async def test_alu_add(dut):
     await tick(dut)  # LD R6 0x06
     await tick(dut)  # ADD R5 R6
     assert reg(dut, 5) == 0x0B
+
+
+@asm("""
+LD R5 0x05
+LD R6 0x06
+
+ADD R5 R6 CARRY_ONE
+""")
+async def test_alu_add_carry_one(dut):
+    await wait_startup(dut)
+
+    await tick(dut)  # LD R5 0x05
+    await tick(dut)  # LD R6 0x06
+    await tick(dut)  # ADD R5 R6
+    assert reg(dut, 5) == 0x0C
+
+
+@asm("""
+LD R4 0
+LD R5 250
+LD R6 30
+
+ADD R5 R6 CARRY_ZERO
+ADD R4 R4 CARRY_LAST
+""")
+async def test_alu_add_carry_last(dut):
+    await wait_startup(dut)
+
+    await tick(dut)  # LD R4 0
+    await tick(dut)  # LD R5 0x05
+    await tick(dut)  # LD R6 0x06
+
+    await tick(dut)  # ADD R5 R6 CARRY_ZERO
+    await tick(dut)  # ADD R4 R4 CARRY_LAST
+
+    assert reg(dut, 5) == 24
+    assert reg(dut, 4) == 1
+
+
+# TODO: test flags
 
 
 types_path = repo_root / "pkg3_cpu_hdl" / "types.sv"

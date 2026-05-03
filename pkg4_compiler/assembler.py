@@ -390,7 +390,7 @@ class CarryMode(Enum):
 
     CARRY_ZERO = 0  # carry-in forced to 0 (plain ADD / SUB)
     CARRY_ONE = 1  # carry-in forced to 1
-    CARRY_PREVIOUS = 2  # carry-in = previous value of CF (multi-byte add/sub chains)
+    CARRY_LAST = 2  # carry-in = previous value of CF (multi-byte add/sub chains)
 
     @staticmethod
     def from_str(carry_mode_str: str):
@@ -399,8 +399,8 @@ class CarryMode(Enum):
                 return CarryMode.CARRY_ZERO
             case "CARRY_ONE":
                 return CarryMode.CARRY_ONE
-            case "CARRY_PREVIOUS":
-                return CarryMode.CARRY_PREVIOUS
+            case "CARRY_LAST":
+                return CarryMode.CARRY_LAST
 
         raise AssemblerException(f"Unknown carry mode {carry_mode_str}")
 

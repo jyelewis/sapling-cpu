@@ -67,17 +67,28 @@ module sapling_cpu_core
 
   // ALU
   alu_op_t ctrl_alu_op;
-  flags_t  alu_result_flags;
+  flags_t alu_result_flags;
+
+  // compute carry flag
+  flags_t current_flags;  // early declare
+  logic alu_carry_in;
+  always_comb begin
+    unique case (instruction_segment_c)
+      CARRY_ZERO: alu_carry_in = 0;
+      CARRY_ONE:  alu_carry_in = 1;
+      CARRY_LAST: alu_carry_in = current_flags.carry;
+    endcase
+  end
+
   alu alu (
       .alu_lhs(register_read_data_a),
       .alu_rhs(register_read_data_b),
-      .alu_carry_in(1'h0),  // TODO: implement carry
       .*
   );
 
   // flags
-  logic   ctrl_load_flags;
-  flags_t current_flags;  // early declare
+  logic ctrl_load_flags;
+
   flags flags (
       .flags_in (alu_result_flags),  // TODO: special reads/writes. TODO: maintain intd flag?
       .flags_out(current_flags),

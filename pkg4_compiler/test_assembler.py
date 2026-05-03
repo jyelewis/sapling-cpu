@@ -124,8 +124,8 @@ def test_add_sub_explicit_carry_modes():
         [
             "ADD R1 R2 CARRY_ZERO",
             "ADD R1 R2 CARRY_ONE",
-            "ADD R1 R2 CARRY_PREVIOUS",
-            "SUB R3 R4 CARRY_PREVIOUS",
+            "ADD R1 R2 CARRY_LAST",
+            "SUB R3 R4 CARRY_LAST",
         ]
     )
     assert _decode(words[0])[3] == 0

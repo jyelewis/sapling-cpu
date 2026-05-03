@@ -37,7 +37,7 @@ SPECIAL_PENDING_INTERRUPTS = 3
 # Carry-mode selectors, encoded in segment C of ADD/SUB (match CarryMode in assembler.py).
 CARRY_MODE_ZERO = 0  # carry-in forced to 0 — plain ADD/SUB
 CARRY_MODE_ONE = 1  # carry-in forced to 1
-CARRY_MODE_PREVIOUS = 2  # carry-in = previous value of CF — multi-byte chains
+CARRY_LAST = 2  # carry-in = previous value of CF — multi-byte chains
 
 MEMORY_SIZE = 65536
 INTERRUPT_VECTOR = 0x0000
@@ -235,7 +235,7 @@ class SaplingCpuEmu:
             return 0
         if carry_mode == CARRY_MODE_ONE:
             return 1
-        if carry_mode == CARRY_MODE_PREVIOUS:
+        if carry_mode == CARRY_LAST:
             return 1 if self.flags & FLAG_CF else 0
         raise RuntimeError(f"Invalid carry mode {carry_mode}")
 

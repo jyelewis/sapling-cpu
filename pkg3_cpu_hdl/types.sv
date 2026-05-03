@@ -72,4 +72,10 @@ package types;
     logic negative;  // 1
     logic zero;  // 0
   } flags_t;
+
+  typedef enum logic [2:0] {
+    CARRY_ZERO = 3'h0,
+    CARRY_ONE  = 3'h1,
+    CARRY_LAST = 3'h2
+  } carry_mode_t;
 endpackage
