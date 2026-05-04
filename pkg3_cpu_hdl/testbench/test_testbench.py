@@ -143,6 +143,7 @@ async def test_load_reg_mem_absolute(dut):
     assert reg(dut, 3) == 0xAB  # load imm8 from the original instruction
 
 
+# TODO: validate instructions following this memory write work, I suspect they won't
 @show_waveform(False)
 @asm("""
 // value to write
@@ -188,6 +189,34 @@ async def test_store_reg_mem_absolute(dut):
     await tick(dut)
     await tick(dut)
     await tick(dut)
+
+
+# TODO: this is not working, suspect something about pipelining instructions after memory fetches
+@show_waveform(True)
+@asm("""
+// value to write
+LD R0 0xAB
+
+// write to SP+10
+ST #[SP + 50] R0
+LD R1 #[SP + 50]
+""")
+async def test_load_store_mem_sp_rel(dut):
+    await wait_startup(dut)
+
+    await tick(dut)  # LD R0 0xAB
+    await tick(dut)  # ST [SP+10] R0
+    await tick(dut)  # memory cycle
+    await tick(dut)  # LD [SP+10] R1
+    await tick(dut)  # memory cycle
+    await tick(dut)  # ???
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+
+    # TODO: this is failing due to timing issues after the microcode stall in the PC
+    assert read_memory_byte(dut, 0x00A) == 0xAB
+    assert reg(dut, 1) == 0xAB
 
 
 @asm("""
@@ -240,6 +269,153 @@ async def test_alu_add_carry_last(dut):
 
     assert reg(dut, 5) == 24
     assert reg(dut, 4) == 1
+
+
+@asm("""
+LD R5 0x06
+LD R6 0x05
+
+SUB R5 R6 CARRY_ZERO
+""")
+async def test_alu_sub(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0x01
+
+
+@asm("""
+LD R5 0x06
+LD R6 0x05
+
+SUB R5 R6 CARRY_ONE
+""")
+async def test_alu_sub_carry_one(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0x00
+
+
+@asm("""
+LD R3 0
+LD R4 10
+LD R5 30
+LD R6 250
+
+SUB R5 R6 CARRY_ZERO
+SUB R4 R3 CARRY_LAST
+""")
+async def test_alu_sub_carry_last(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+
+    await tick(dut)
+    await tick(dut)
+
+    assert reg(dut, 5) == 36
+    assert reg(dut, 4) == 9
+
+
+@asm("""
+LD R3 0
+LD R4 10
+LD R5 30
+LD R6 250
+
+CMP R5 R6 CARRY_ZERO
+SUB R4 R3 CARRY_LAST
+""")
+async def test_alu_cmp_carry_last(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+
+    await tick(dut)
+    await tick(dut)
+
+    assert reg(dut, 5) == 30
+    assert reg(dut, 4) == 9
+
+
+@asm("""
+LD R5 0b10101010
+LD R6 0b00001111
+
+AND R5 R6
+""")
+async def test_alu_and(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0b0001010
+
+
+@asm("""
+LD R5 0b10101010
+LD R6 0b00001111
+
+OR R5 R6
+""")
+async def test_alu_or(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0b10101111
+
+
+@asm("""
+LD R5 0b10101010
+LD R6 0b00001111
+
+XOR R5 R6
+""")
+async def test_alu_xor(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0b10100101
+
+
+@asm("""
+LD R5 0b00111100
+SHL R5
+""")
+async def test_alu_shl(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0b01111000
+
+
+@asm("""
+LD R5 0b00111100
+SHR R5
+""")
+async def test_alu_shr(dut):
+    await wait_startup(dut)
+
+    await tick(dut)
+    await tick(dut)
+    assert reg(dut, 5) == 0b00011110
 
 
 # TODO: test flags

@@ -101,10 +101,13 @@ module sapling_cpu_core
   memory_write_src_t ctrl_memory_write_src;
   logic ctrl_memory_write;
 
+  logic [15:0] stack_pointer = 0;  // TODO: implement stack pointer
+
   always_comb begin
     unique case (ctrl_memory_address_src)
-      MEMORY_ADDRESS_NEXT_PC:  memory_address = next_pc;
-      MEMORY_ADDRESS_REG_COMB: memory_address = {register_read_data_a, register_read_data_b};
+      MEMORY_ADDRESS_NEXT_PC:   memory_address = next_pc;
+      MEMORY_ADDRESS_REG_COMB:  memory_address = {register_read_data_a, register_read_data_b};
+      MEMORY_ADDRESS_SP_OFFSET: memory_address = stack_pointer + 16'(signed'(instruction_imm8));
     endcase
 
     unique case (ctrl_memory_write_src)
