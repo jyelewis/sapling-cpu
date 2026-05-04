@@ -13,8 +13,9 @@ module sapling_cpu_core
     output logic memory_write_enable,
     input logic memory_ready
 );
-  // program counter
+  // special registers
   logic [15:0] current_pc;
+  logic [15:0] stack_pointer = 0;  // TODO: implement stack pointer
 
   logic [15:0] next_pc;
   next_pc_src_t ctrl_next_pc_src;
@@ -100,8 +101,6 @@ module sapling_cpu_core
   memory_address_src_t ctrl_memory_address_src;
   memory_write_src_t ctrl_memory_write_src;
   logic ctrl_memory_write;
-
-  logic [15:0] stack_pointer = 0;  // TODO: implement stack pointer
 
   always_comb begin
     unique case (ctrl_memory_address_src)

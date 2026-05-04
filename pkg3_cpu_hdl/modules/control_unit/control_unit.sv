@@ -203,7 +203,6 @@ module control_unit
               ctrl_next_pc_src = NEXT_PC_HOLD;
               ctrl_load_instruction = 0;  // memory address bus in use
             end
-            // TODO: replicate on load
             1: begin
               // inserted NOP while the memory bus is being used for our write
               // TODO: I am not convinced this is the right answer
