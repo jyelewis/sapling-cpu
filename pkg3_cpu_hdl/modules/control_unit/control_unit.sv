@@ -95,6 +95,7 @@ module control_unit
           ctrl_register_write_enable = 1;
         end
 
+        // TODO: does this need to be 3 cycles?
         OPCODE_LOAD_REG_MEM_ABSOLUTE: begin
           unique case (microcode_step)
             0: begin
@@ -114,10 +115,18 @@ module control_unit
               ctrl_write_register = instruction_segment_a;
               ctrl_register_write_data_src = REG_WRITE_DATA_MEMORY;
               ctrl_register_write_enable = 1;
+
+              ctrl_next_continue_microcode = 1;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_load_instruction = 0;  // wait for memory to read next PC after our memory write
+            end
+            2: begin
+              // back to regular work
             end
           endcase
         end
 
+        // TODO: does this need to be 3 cycles?
         OPCODE_STORE_MEM_ABSOLUTE_REG: begin
           unique case (microcode_step)
             0: begin
@@ -136,13 +145,17 @@ module control_unit
               ctrl_load_instruction = 0;  // memory address bus in use
             end
             1: begin
-              // inserted NOP while the memory bus is being used for our write
+              ctrl_next_continue_microcode = 1;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_load_instruction = 0;  // memory address bus in use
+            end
+            2: begin
+              // back to regular work
             end
           endcase
         end
 
-        // TODO: test me
-        // TODO: does not seem to be working....
+        // TODO: is there a way to do these memory ops in less than 3 cycles?
         OPCODE_LOAD_REG_MEM_SP_REL: begin
           $display("Executing LOAD_REG_MEM_SP_REL with imm8 offset");
           unique case (microcode_step)
@@ -159,6 +172,16 @@ module control_unit
               ctrl_write_register = instruction_segment_a;
               ctrl_register_write_data_src = REG_WRITE_DATA_MEMORY;
               ctrl_register_write_enable = 1;
+
+              ctrl_next_continue_microcode = 1;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_load_instruction = 0;  // memory address bus in use
+            end
+            2: begin
+              // back to regular work
+              // TODO: these are defaults?
+              ctrl_next_pc_src = NEXT_PC_INC;
+              ctrl_load_instruction = 1;
             end
           endcase
         end
@@ -180,10 +203,20 @@ module control_unit
               ctrl_next_pc_src = NEXT_PC_HOLD;
               ctrl_load_instruction = 0;  // memory address bus in use
             end
+            // TODO: replicate on load
             1: begin
               // inserted NOP while the memory bus is being used for our write
               // TODO: I am not convinced this is the right answer
-              // ctrl_next_pc_src = NEXT_PC_HOLD;
+              ctrl_next_pc_src = NEXT_PC_HOLD;
+              // waiting for memory to read next instruction (after write)
+              ctrl_load_instruction = 0;
+              ctrl_next_continue_microcode = 1;
+            end
+            2: begin
+              // back to regular work
+              // TODO: these are defaults?
+              ctrl_next_pc_src = NEXT_PC_INC;
+              ctrl_load_instruction = 1;
             end
           endcase
         end

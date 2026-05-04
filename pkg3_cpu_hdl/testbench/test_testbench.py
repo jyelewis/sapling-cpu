@@ -107,6 +107,9 @@ LD R2 0x01
 
 // load our constant from byte 1
 LD R3 #[R1 R2]
+
+// ensure following instructions still execute correctly
+LD R5 0x99
 """)
 async def test_load_reg_mem_absolute(dut):
     await wait_startup(dut)
@@ -134,7 +137,8 @@ async def test_load_reg_mem_absolute(dut):
     assert reg(dut, 2) == 0x01
     assert reg(dut, 3) == 0x00
 
-    # LD is a 2 cycle instruction
+    # LD mem is a 2 cycle instruction
+    await tick(dut)
     await tick(dut)
     await tick(dut)
     assert reg(dut, 0) == 0xAB
@@ -142,9 +146,10 @@ async def test_load_reg_mem_absolute(dut):
     assert reg(dut, 2) == 0x01
     assert reg(dut, 3) == 0xAB  # load imm8 from the original instruction
 
+    await tick(dut)  # LD R5 0x99
+    assert reg(dut, 5) == 0x99
 
-# TODO: validate instructions following this memory write work, I suspect they won't
-@show_waveform(False)
+
 @asm("""
 // value to write
 LD R0 0xAB
@@ -155,6 +160,9 @@ LD R2 0x02
 
 // store 0xAB at 0x0102
 ST #[R1 R2] R0
+
+// ensure following instructions still execute correctly
+LD R5 0x99
 """)
 async def test_store_reg_mem_absolute(dut):
     await wait_startup(dut)
@@ -180,43 +188,46 @@ async def test_store_reg_mem_absolute(dut):
 
     assert read_memory_byte(dut, 0x0102) == 0x00
 
-    # LD is a 2 cycle instruction
+    # ST mem is a 3 cycle instruction
     await tick(dut)
     await tick(dut)
-
+    await tick(dut)
     assert read_memory_byte(dut, 0x0102) == 0xAB
-    await tick(dut)
-    await tick(dut)
-    await tick(dut)
-    await tick(dut)
+
+    await tick(dut)  # LD R5 0x99
+    assert reg(dut, 5) == 0x99
 
 
-# TODO: this is not working, suspect something about pipelining instructions after memory fetches
-@show_waveform(True)
 @asm("""
 // value to write
 LD R0 0xAB
 
 // write to SP+10
-ST #[SP + 50] R0
-LD R1 #[SP + 50]
+ST #[SP + 0x55] R0
+LD R1 #[SP + 0x55]
+
+LD R5 0x99
 """)
 async def test_load_store_mem_sp_rel(dut):
     await wait_startup(dut)
 
     await tick(dut)  # LD R0 0xAB
+
     await tick(dut)  # ST [SP+10] R0
     await tick(dut)  # memory cycle
+    await tick(dut)  # stall cycle
+
     await tick(dut)  # LD [SP+10] R1
     await tick(dut)  # memory cycle
-    await tick(dut)  # ???
-    await tick(dut)
-    await tick(dut)
-    await tick(dut)
+    await tick(dut)  # stall cycle
 
-    # TODO: this is failing due to timing issues after the microcode stall in the PC
-    assert read_memory_byte(dut, 0x00A) == 0xAB
+    await tick(dut)  # LD R5 0x99
+
+    assert read_memory_byte(dut, 0x55) == 0xAB
     assert reg(dut, 1) == 0xAB
+
+    # ensure instructions following memory execute correctly
+    assert reg(dut, 5) == 0x99
 
 
 @asm("""
